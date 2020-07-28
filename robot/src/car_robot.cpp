@@ -30,20 +30,17 @@ void CarRobot::displayRobotDetails() const
 
 State CarRobot::updateState(const State& current_state, const ControlInput& control_input)
 {
-    State next_state;
-
     ros::Duration dt = ros::Time::now() - prev_time_;
     
-    next_state.theta = control_input.steering_velocity * dt.toSec() + current_state.theta;
+    state_.theta = control_input.steering_velocity * dt.toSec() + current_state.theta;
 
-    next_state.x = control_input.forward_velocity * dt.toSec() * cos(next_state.theta) + current_state.x;
-    next_state.y = control_input.forward_velocity * dt.toSec() * sin(next_state.theta) + current_state.y;
+    state_.x = control_input.forward_velocity * dt.toSec() * cos(state_.theta) + current_state.x;
+    state_.y = control_input.forward_velocity * dt.toSec() * sin(state_.theta) + current_state.y;
 
-    next_state.x_dot = (next_state.x - current_state.x) / dt.toSec();
-    next_state.y_dot = (next_state.y - current_state.y) / dt.toSec();
-    next_state.theta_dot = (next_state.theta - current_state.theta) / dt.toSec();
+    state_.linear_velocity = control_input.forward_velocity;
+    state_.angular_velocity = control_input.steering_velocity;
 
-    return next_state;
+    return state_;
 }
 
 geometry_msgs::TransformStamped CarRobot::getCurrentPose() const
@@ -51,7 +48,7 @@ geometry_msgs::TransformStamped CarRobot::getCurrentPose() const
     geometry_msgs::TransformStamped pose;
     try
     {
-        pose = buffer_.lookupTransform("/map", "/base_link", ros::Time(0));
+        pose = buffer_.lookupTransform("map", "base_link", ros::Time(0));
     }
     catch(tf2::TransformException &ex)
     {
@@ -60,22 +57,37 @@ geometry_msgs::TransformStamped CarRobot::getCurrentPose() const
     return pose;
 }
 
-void CarRobot::broadcastPose()
+void CarRobot::setNewPose(const State& state)
 {
-    geometry_msgs::TransformStamped transformStamped;
+    geometry_msgs::TransformStamped pose;
   
-    transformStamped.header.stamp = ros::Time::now();
-    transformStamped.header.frame_id = "map";
-    transformStamped.child_frame_id = "base_link";
-    transformStamped.transform.translation.x = 0.0;
-    transformStamped.transform.translation.y = 0.0;
-    transformStamped.transform.translation.z = 0.0;
+    pose.header.stamp = ros::Time::now();
+    pose.header.frame_id = "map";
+    pose.child_frame_id = "base_link";
+    pose.transform.translation.x = state.x;
+    pose.transform.translation.y = state.y;
+    pose.transform.translation.z = 0.0;
     tf2::Quaternion q;
-    q.setRPY(0, 0, 0);
-    transformStamped.transform.rotation.x = q.x();
-    transformStamped.transform.rotation.y = q.y();
-    transformStamped.transform.rotation.z = q.z();
-    transformStamped.transform.rotation.w = q.w();
+    q.setRPY(0, 0, state.theta);
+    pose.transform.rotation.x = q.x();
+    pose.transform.rotation.y = q.y();
+    pose.transform.rotation.z = q.z();
+    pose.transform.rotation.w = q.w();
 
-    broadcaster_.sendTransform(transformStamped);
+    broadcaster_.sendTransform(pose);
+}
+
+DriveLimits CarRobot::getDriveLimits() const
+{
+    return drive_limits_;
+}
+
+Dimension CarRobot::getDimension() const
+{
+    return dimension_;
+}
+
+State CarRobot::getState() const
+{
+    return state_;
 }

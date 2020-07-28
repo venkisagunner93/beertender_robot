@@ -15,6 +15,7 @@
 #include <std_srvs/Trigger.h>
 #include "navigation/global_planner/global_planner.h"
 #include "navigation/global_planner/breadth_first_search.h"
+#include "navigation/SetGoal.h"
 #include "robot/car_robot.h"
 
 /**
@@ -71,7 +72,7 @@ class Planner
          * @return true 
          * @return false 
          */
-        bool getGlobalPath(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response);
+        bool getGlobalPath(navigation::SetGoalRequest& request, navigation::SetGoalResponse& response);
 };
 
 #endif  // PLANNER_H

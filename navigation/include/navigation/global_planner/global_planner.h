@@ -11,7 +11,7 @@
 #define GLOBAL_PLANNER_H
 
 #include <nav_msgs/Path.h>
-#include "navigation/global_planner/global_planner_types.h"
+#include "navigation/planner_types.h"
 
 /**
  * @brief A base class for global planner

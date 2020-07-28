@@ -34,8 +34,8 @@ nav_msgs::Path BFS::createPath(Node* goal_node)
         while(current != nullptr)
         {
             geometry_msgs::PoseStamped pose;
-            pose.pose.position.x = current->x;
-            pose.pose.position.y = current->y;
+            pose.pose.position.x = current->y * map_.info.resolution;
+            pose.pose.position.y = current->x * map_.info.resolution;
             path.poses.push_back(pose);
             current = current->parent;
         }
@@ -47,12 +47,15 @@ nav_msgs::Path BFS::createPath(Node* goal_node)
 nav_msgs::Path BFS::getGlobalPath(const Coordinate& start, const Coordinate& goal)
 {
     resetGraph();
-    Node* goal_node = graph_[goal.x][goal.y];
+    Node* goal_node = graph_[int(goal.x / map_.info.resolution)][int(goal.y / map_.info.resolution)];
 
     std::queue<Node*> search_list;
 
-    graph_[start.x][start.y]->is_visited = true;
-    search_list.push(graph_[start.x][start.y]);
+    ROS_INFO_STREAM("Start: [" << int(start.x / map_.info.resolution) << "," << int(start.y / map_.info.resolution) << 
+                    "] => Goal: [" << int(goal.x / map_.info.resolution) << "," << int(goal.y / map_.info.resolution) << "]");
+
+    graph_[int(start.x / map_.info.resolution)][int(start.y / map_.info.resolution)]->is_visited = true;
+    search_list.push(graph_[int(start.x / map_.info.resolution)][int(start.y / map_.info.resolution)]);
 
     while(!search_list.empty())
     {

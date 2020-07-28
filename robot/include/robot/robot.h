@@ -10,6 +10,7 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
+#include <geometry_msgs/TransformStamped.h>
 #include "robot/robot_types.h"
 
 /**
@@ -39,10 +40,25 @@ class Robot
          */
         virtual geometry_msgs::TransformStamped getCurrentPose() const = 0;
         /**
-         * @brief A method to broadcast pose
+         * @brief A method to set new pose
+         * @param state - State of the robot
          */
-        virtual void broadcastPose() = 0;
-
+        virtual void setNewPose(const State& state) = 0;
+        /**
+         * @brief Get the Drive Limits object
+         * @return DriveLimits 
+         */
+        virtual DriveLimits getDriveLimits() const = 0;
+        /**
+         * @brief Get the Dimension object
+         * @return Dimension 
+         */
+        virtual Dimension getDimension() const = 0;
+        /**
+         * @brief Get the State object
+         * @return State 
+         */
+        virtual State getState() const = 0;
 };
 
 #endif  // ROBOT_H

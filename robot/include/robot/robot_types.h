@@ -60,16 +60,15 @@ struct State
     unsigned int x;  /*< X position (m) */
     unsigned int y;  /*< Y position (m) */
     float theta;  /*< Orientation in yaw (rad) */
-    float x_dot;  /*< X velocity (m/s) */
-    float y_dot;  /*< Y velocity (m/s) */
-    float theta_dot;  /*< Angular velocity (rad/s) */
+    float linear_velocity;  /*< Linear velocity (m/s) */
+    float angular_velocity;  /*< Angular velocity (rad/s) */
     /**
      * @brief Construct a new State object
      */
     State()
     {
         x = 0; y = 0; theta = 0.0;
-        x_dot = 0.0; y_dot = 0.0; theta_dot = 0.0;
+        linear_velocity = 0.0; angular_velocity = 0.0;
     }
 };
 

@@ -10,12 +10,14 @@
   <build_depend>roscpp</build_depend>
   <build_depend>tf2_ros</build_depend>
   <build_depend>robot</build_depend>
+  <build_depend>message_generation</build_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>tf2_ros</build_export_depend>
   <build_export_depend>robot</build_export_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>robot</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
   <export>
   </export>
 </package>

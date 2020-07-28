@@ -51,9 +51,25 @@ class CarRobot : public Robot
          */
         geometry_msgs::TransformStamped getCurrentPose() const;
         /**
-         * @brief A method to broadcast pose
+         * @brief A method to set new pose
+         * @param state - State of the robot
          */
-        void broadcastPose();
+        void setNewPose(const State& state);
+        /**
+         * @brief Get the Drive Limits object
+         * @return DriveLimits 
+         */
+        DriveLimits getDriveLimits() const;
+        /**
+         * @brief Get the Dimension object
+         * @return Dimension 
+         */
+        Dimension getDimension() const;
+        /**
+         * @brief Get the State object
+         * @return State 
+         */
+        State getState() const;
 
     private:
         /**
@@ -80,6 +96,10 @@ class CarRobot : public Robot
          * @brief Transform listener
          */
         tf2_ros::TransformListener listener_;
+        /**
+         * @brief Current state of the robot
+         */
+        State state_;
 };
 
 #endif  // CAR_ROBOT_H

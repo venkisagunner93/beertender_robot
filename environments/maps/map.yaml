@@ -1,5 +1,5 @@
-image: test.png
-resolution: 0.75
+image: map.png
+resolution: 0.015
 origin: [0, 0, 0.0]
 occupied_thresh: 0.65
 free_thresh: 0.196

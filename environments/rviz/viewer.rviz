@@ -69,23 +69,18 @@ Visualization Manager:
     - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
-      Enabled: true
+      Enabled: false
       Links:
         All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_link_estimate:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
       Name: Basic robot estimate
       Robot Description: robot_estimate
       TF Prefix: ""
       Update Interval: 0
-      Value: true
+      Value: false
       Visual Enabled: true
     - Alpha: 1
       Buffer Length: 1
@@ -165,7 +160,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 84.88739013671875
+      Scale: 83.66500854492188
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
       X: 3.7540123462677
@@ -187,5 +182,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 1210
-  Y: 123
+  X: 1198
+  Y: 49
