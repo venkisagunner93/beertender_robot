@@ -1,12 +1,19 @@
 #include "navigation/planner.h"
 
-Planner::Planner(ros::NodeHandle& nh, Robot* robot)
+Planner::Planner(ros::NodeHandle& nh, Robot* robot) : dwa_(nh, robot)
 {
     robot_ = robot;
+
     map_subscriber_ = nh.subscribe("basic_map", 100, &Planner::getMap, this);
     global_path_publisher_ = nh.advertise<nav_msgs::Path>("robot/global_path", 100);
+    set_goal_service_ = nh.advertiseService("nav/set_goal", &Planner::setGoal, this);
 
-    global_path_service_ = nh.advertiseService("nav/get_global_path", &Planner::getGlobalPath, this);
+    init_state_.x = 2.0;
+    init_state_.y = 3.0;
+
+    ControlInput input;
+
+    robot_->updateState(init_state_, input);
 }
 
 Planner::~Planner()
@@ -19,26 +26,40 @@ void Planner::getMap(const nav_msgs::OccupancyGrid& msg)
     bfs_.updateMap(msg);
 }
 
-bool Planner::getGlobalPath(navigation::SetGoalRequest& request, navigation::SetGoalResponse& response)
+bool Planner::setGoal(navigation::SetGoalRequest& request, navigation::SetGoalResponse& response)
 {
-    Coordinate start;
-    start.x = robot_->getCurrentPose().transform.translation.y;
-    start.y = robot_->getCurrentPose().transform.translation.x;
+    geometry_msgs::PointStamped goal;
+    goal.header.stamp = request.goal.header.stamp;
+    goal.point.x = request.goal.point.y;
+    goal.point.y = request.goal.point.x;
 
-    Coordinate goal;
-    goal.x = request.y;
-    goal.y = request.x;
-
-    global_path_publisher_.publish(bfs_.getGlobalPath(start, goal));
+    goal_queue_.push(goal);
 
     return true;
 }
 
-void Planner::updateRobotPose()
+void Planner::planMotion()
 {
-    State new_state;
-    new_state.x = 5;
-    new_state.y = 3;
-    new_state.theta = 0;
-    robot_->setNewPose(new_state);
+    State state;
+    geometry_msgs::PointStamped start;
+    start.header.stamp = robot_->getCurrentPose().header.stamp;
+    start.point.x = robot_->getCurrentPose().transform.translation.y;
+    start.point.y = robot_->getCurrentPose().transform.translation.x;
+    
+    state = init_state_;
+
+    if(!goal_queue_.empty())
+    {
+        nav_msgs::Path global_path = bfs_.getGlobalPath(start, goal_queue_.front());
+        goal_queue_.pop();
+
+        // for(auto pose: global_path.poses)
+        // {
+            dwa_.moveTo(global_path.poses[0]);
+        // }
+
+        global_path_publisher_.publish(global_path);
+    }
+
+    robot_->setNewPose(state);
 }

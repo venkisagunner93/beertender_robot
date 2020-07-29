@@ -25,18 +25,17 @@ class DWA : public LocalPlanner
          * @brief Construct a new DWA object
          * @param nh - ROS NodeHandle for communication
          * @param robot - Robot instance
-         * @param dwa_config - DWA configuration parameters
          */
-        DWA(ros::NodeHandle& nh, Robot* robot, const DWAConfig& dwa_config);
+        DWA(ros::NodeHandle& nh, Robot* robot);
         /**
          * @brief Destroy the Dwa Local Planner object
          */
         ~DWA();
         /**
-         * @brief Set the Global Path object
-         * @param msg - Global path
+         * @brief A method to move the robot to a pose
+         * @param pose - Target pose
          */
-        void setGlobalPath(const nav_msgs::Path& msg);
+        void moveTo(const geometry_msgs::PoseStamped& pose);
 
     private:
         /**
@@ -44,22 +43,21 @@ class DWA : public LocalPlanner
          */
         Robot* robot_;
         /**
-         * @brief Global path
-         */
-        nav_msgs::Path global_path_;
-        /**
          * @brief DWA configuration parameters
          */
         DWAConfig config_;
-        /**
-         * @brief Dynamic window
-         */
-        DynamicWindow dynamic_window_;
+        nav_msgs::Path trajectory_;
+        ros::Publisher trajectory_publisher_;
         /**
          * @brief A method to compute dynamic window
+         * @param window 
          */
-        void computeDynamicWindow();
-        
+        void computeDynamicWindow(DynamicWindow& window);
+        /**
+         * @brief A method to compute trajectory
+         * @param input 
+         */
+        void computeTrajectory(const ControlInput& input); 
 };
 
 #endif  // DYNAMIC_WINDOW_APPROACH_H

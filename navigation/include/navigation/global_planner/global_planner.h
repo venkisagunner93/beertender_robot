@@ -11,6 +11,7 @@
 #define GLOBAL_PLANNER_H
 
 #include <nav_msgs/Path.h>
+#include <geometry_msgs/PointStamped.h>
 #include "navigation/planner_types.h"
 
 /**
@@ -29,7 +30,7 @@ class GlobalPlanner
          * @param goal - Goal co-ordinate
          * @return nav_msgs::Path 
          */
-        virtual nav_msgs::Path getGlobalPath(const Coordinate& start, const Coordinate& goal) = 0;
+        virtual nav_msgs::Path getGlobalPath(const geometry_msgs::PointStamped& start, const geometry_msgs::PointStamped& goal) = 0;
 };
 
 #endif  // GLOBAL_PLANNER_H

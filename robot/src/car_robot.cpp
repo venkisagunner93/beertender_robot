@@ -16,6 +16,7 @@ CarRobot::CarRobot(const DriveLimits& drive_limits) : listener_(buffer_)
             dimension_.height = box->dim.z;
         }
     }
+    prev_time_ = ros::Time::now();
 
     drive_limits_ = drive_limits;
 }
@@ -30,7 +31,7 @@ void CarRobot::displayRobotDetails() const
 
 State CarRobot::updateState(const State& current_state, const ControlInput& control_input)
 {
-    ros::Duration dt = ros::Time::now() - prev_time_;
+    ros::Duration dt = ros::Duration(0.1);
     
     state_.theta = control_input.steering_velocity * dt.toSec() + current_state.theta;
 
@@ -39,6 +40,8 @@ State CarRobot::updateState(const State& current_state, const ControlInput& cont
 
     state_.linear_velocity = control_input.forward_velocity;
     state_.angular_velocity = control_input.steering_velocity;
+
+    prev_time_ = ros::Time::now();
 
     return state_;
 }

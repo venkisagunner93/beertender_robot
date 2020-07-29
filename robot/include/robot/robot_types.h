@@ -57,8 +57,8 @@ struct DriveLimits
  */
 struct State
 {
-    unsigned int x;  /*< X position (m) */
-    unsigned int y;  /*< Y position (m) */
+    float x;  /*< X position (m) */
+    float y;  /*< Y position (m) */
     float theta;  /*< Orientation in yaw (rad) */
     float linear_velocity;  /*< Linear velocity (m/s) */
     float angular_velocity;  /*< Angular velocity (rad/s) */
@@ -67,7 +67,7 @@ struct State
      */
     State()
     {
-        x = 0; y = 0; theta = 0.0;
+        x = 0.0; y = 0.0; theta = 0.0;
         linear_velocity = 0.0; angular_velocity = 0.0;
     }
 };

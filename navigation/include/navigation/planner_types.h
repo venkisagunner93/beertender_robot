@@ -11,22 +11,6 @@
 #define PLANNER_TYPES_H
 
 /**
- * @brief A structure for Coordinate
- */
-struct Coordinate
-{
-    float x;  /*< X co-ordinate */
-    float y;  /*< Y co-ordinate */
-    /**
-     * @brief Construct a new Coordinate object
-     */
-    Coordinate()
-    {
-        x = 0.0; y = 0.0;
-    }
-};
-
-/**
  * @brief A structure for graph node
  */
 struct Node

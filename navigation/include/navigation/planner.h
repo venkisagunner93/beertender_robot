@@ -10,11 +10,12 @@
 #ifndef PLANNER_H
 #define PLANNER_H
 
+#include <queue>
 #include <ros/ros.h>
 #include <nav_msgs/OccupancyGrid.h>
-#include <std_srvs/Trigger.h>
-#include "navigation/global_planner/global_planner.h"
+#include <geometry_msgs/PointStamped.h>
 #include "navigation/global_planner/breadth_first_search.h"
+#include "navigation/local_planner/dynamic_window_approach.h"
 #include "navigation/SetGoal.h"
 #include "robot/car_robot.h"
 
@@ -35,9 +36,9 @@ class Planner
          */
         ~Planner();
         /**
-         * @brief A method to update robot pose
+         * @brief A method to plan robot motion
          */
-        void updateRobotPose();
+        void planMotion();
     
     private:
         /**
@@ -48,6 +49,9 @@ class Planner
          * @brief Breadth first search instance
          */
         BFS bfs_;
+        DWA dwa_;
+        State init_state_;
+        std::queue<geometry_msgs::PointStamped> goal_queue_;
         /**
          * @brief Map subscriber
          */
@@ -57,9 +61,9 @@ class Planner
          */
         ros::Publisher global_path_publisher_;
         /**
-         * @brief Global path service
+         * @brief Set goal service
          */
-        ros::ServiceServer global_path_service_;
+        ros::ServiceServer set_goal_service_;
         /**
          * @brief A callback to load map from map server
          * @param msg - Occupancy grid
@@ -72,7 +76,7 @@ class Planner
          * @return true 
          * @return false 
          */
-        bool getGlobalPath(navigation::SetGoalRequest& request, navigation::SetGoalResponse& response);
+        bool setGoal(navigation::SetGoalRequest& request, navigation::SetGoalResponse& response);
 };
 
 #endif  // PLANNER_H

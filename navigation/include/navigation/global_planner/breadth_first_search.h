@@ -27,7 +27,7 @@ class BFS : public GlobalPlanner
          * @param goal - Goal co-ordinate
          * @return nav_msgs::Path 
          */
-        nav_msgs::Path getGlobalPath(const Coordinate& start, const Coordinate& goal);
+        nav_msgs::Path getGlobalPath(const geometry_msgs::PointStamped& start, const geometry_msgs::PointStamped& goal);
         /**
          * @brief A method to update map
          * @param map - Updated map
