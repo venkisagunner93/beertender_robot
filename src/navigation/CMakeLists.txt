@@ -43,7 +43,8 @@ add_library(local_planner_lib
   src/local_planner/dynamic_window_approach.cpp)
 
 add_library(planner_lib
-  src/planner.cpp)
+  src/planner.cpp
+  src/map.cpp)
 
 target_link_libraries(planner_lib global_planner_lib local_planner_lib ${catkin_LIBRARIES})
 add_dependencies(planner_lib navigation_generate_messages_cpp)

@@ -15,17 +15,8 @@ int main(int argc, char** argv)
   CarRobot car_robot(limits);
   car_robot.displayRobotDetails();
 
-  Planner planner(nh);
+  Planner planner(nh, &car_robot);
 
-  ControlInput input;
-
-  while (ros::ok())
-  {
-    planner.planMotion();
-    car_robot.executeCommand(input);
-    ros::spinOnce();
-    ros::Duration(0.1).sleep();
-  }
-
+  ros::spin();
   return 0;
 }

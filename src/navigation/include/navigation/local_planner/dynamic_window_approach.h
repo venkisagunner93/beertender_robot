@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <nav_msgs/Path.h>
+#include <geometry_msgs/PoseStamped.h>
 #include "navigation/local_planner/local_planner.h"
 #include "robot/car_robot.h"
 
@@ -25,17 +26,29 @@ public:
    * @brief Construct a new DWA object
    * @param nh - ROS NodeHandle for communication
    */
-  DWA(ros::NodeHandle& nh);
+  DWA(ros::NodeHandle& nh, Robot* robot);
   /**
    * @brief Destroy the Dwa Local Planner object
    */
-  ~DWA();
+  ~DWA()
+  {
+  }
+  /**
+   * @brief A method to execute trajectory for the robot
+   * @param pose Final pose for the trajectory
+   */
+  void executeTrajectory(const geometry_msgs::PoseStamped& pose);
 
 private:
   /**
    * @brief DWA configuration parameters
    */
   DWAConfig config_;
+  /**
+   * @brief Robot instance
+   */
+  Robot* robot_;
+  
   nav_msgs::Path trajectory_;
   ros::Publisher trajectory_publisher_;
 };

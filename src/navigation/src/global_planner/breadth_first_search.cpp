@@ -1,26 +1,6 @@
 #include "navigation/global_planner/breadth_first_search.h"
 
-std::vector<Node*> BFS::findNeighbors(Node* node)
-{
-  std::vector<Node*> neighbors;
-
-  if (int(node->x - 1) >= 0 && !graph_[node->x - 1][node->y]->is_obstacle &&
-      !graph_[node->x - 1][node->y]->is_visited)
-    neighbors.push_back(graph_[node->x - 1][node->y]);
-  if (node->x + 1 < map_.info.height && !graph_[node->x + 1][node->y]->is_obstacle &&
-      !graph_[node->x + 1][node->y]->is_visited)
-    neighbors.push_back(graph_[node->x + 1][node->y]);
-  if (int(node->y - 1) >= 0 && !graph_[node->x][node->y - 1]->is_obstacle &&
-      !graph_[node->x][node->y - 1]->is_visited)
-    neighbors.push_back(graph_[node->x][node->y - 1]);
-  if (node->y + 1 < map_.info.width && !graph_[node->x][node->y + 1]->is_obstacle &&
-      !graph_[node->x][node->y + 1]->is_visited)
-    neighbors.push_back(graph_[node->x][node->y + 1]);
-
-  return neighbors;
-}
-
-nav_msgs::Path BFS::createPath(Node* goal_node)
+nav_msgs::Path BFS::createPath(Node* goal_node, Map* map)
 {
   nav_msgs::Path path;
   path.header.stamp = ros::Time::now();
@@ -38,8 +18,8 @@ nav_msgs::Path BFS::createPath(Node* goal_node)
     while (current != nullptr)
     {
       geometry_msgs::PoseStamped pose;
-      pose.pose.position.x = current->x * map_.info.resolution;
-      pose.pose.position.y = current->y * map_.info.resolution;
+      pose.pose.position.x = current->x * map->getResolution();
+      pose.pose.position.y = current->y * map->getResolution();
       path.poses.push_back(pose);
       current = current->parent;
     }
@@ -49,37 +29,34 @@ nav_msgs::Path BFS::createPath(Node* goal_node)
 }
 
 nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
-                                  const geometry_msgs::PointStamped& goal)
+                                  const geometry_msgs::PointStamped& goal, Map* map)
 {
-  // Step-1: Reset the graph where all nodes are set back to not visited
-  resetGraph();
   nav_msgs::Path global_path;
 
-  // Step-2: Verify whether goal node is an obstacle or not
-  if (static_cast<int>(goal.point.x / map_.info.resolution) >= map_.info.width ||
-      static_cast<int>(goal.point.y / map_.info.resolution) >= map_.info.height)
+  // Step-1: Verify whether goal node is an obstacle or not
+  Node* goal_node = map->getNodeFromMap(goal.point.x, goal.point.y);
+
+  if (goal_node->x >= map->getWidthInPixels() || goal_node->y >= map->getHeightInPixels() ||
+      goal_node->is_obstacle || !map)
   {
     return global_path;
   }
 
-  // Step-3: Start breadth first search on the graph and find shortest path
+  // Step-2: Start breadth first search on the graph and find shortest path
   // between start and goal nodes
-  Node* goal_node = graph_[static_cast<int>(goal.point.x / map_.info.resolution)]
-                          [static_cast<int>(goal.point.y / map_.info.resolution)];
-
   std::queue<Node*> search_list;
+  std::vector<std::vector<Node*>> graph = map->getGraph();
 
-  ROS_INFO_STREAM("Start: [" << static_cast<int>(start.point.x / map_.info.resolution) << ","
-                             << static_cast<int>(start.point.y / map_.info.resolution)
-                             << "] => Goal: ["
-                             << static_cast<int>(goal.point.x / map_.info.resolution) << ","
-                             << static_cast<int>(goal.point.y / map_.info.resolution) << "]");
+  Node* start_node = map->getNodeFromMap(start.point.x, start.point.y);
 
-  graph_[static_cast<int>(start.point.x / map_.info.resolution)]
-        [static_cast<int>(start.point.y / map_.info.resolution)]
-            ->is_visited = true;
-  search_list.push(graph_[static_cast<int>(start.point.x / map_.info.resolution)]
-                         [static_cast<int>(start.point.y / map_.info.resolution)]);
+  ROS_INFO_STREAM("Start: [" << start_node->x << "," << start_node->y << " => " << goal_node->x
+                             << "," << goal_node->y << "] (in pixels)");
+
+  ROS_INFO_STREAM("Start: [" << start.point.x << "," << start.point.y << " => " << goal.point.x
+                             << "," << goal.point.y << "] (in meters)");
+
+  graph[start_node->x][start_node->y]->is_visited = true;
+  search_list.push(graph[start_node->x][start_node->y]);
 
   while (!search_list.empty())
   {
@@ -89,7 +66,26 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
     if (current_node->x == goal_node->x && current_node->y == goal_node->y)
       break;
 
-    for (auto& neighbor : findNeighbors(current_node))
+    std::vector<Node*> neighbors;
+
+    if (int(current_node->x - 1) >= 0 &&
+        !graph[current_node->x - 1][current_node->y]->is_obstacle &&
+        !graph[current_node->x - 1][current_node->y]->is_visited)
+      neighbors.push_back(graph[current_node->x - 1][current_node->y]);
+    if (current_node->x + 1 < map->getWidthInPixels() &&
+        !graph[current_node->x + 1][current_node->y]->is_obstacle &&
+        !graph[current_node->x + 1][current_node->y]->is_visited)
+      neighbors.push_back(graph[current_node->x + 1][current_node->y]);
+    if (int(current_node->y - 1) >= 0 &&
+        !graph[current_node->x][current_node->y - 1]->is_obstacle &&
+        !graph[current_node->x][current_node->y - 1]->is_visited)
+      neighbors.push_back(graph[current_node->x][current_node->y - 1]);
+    if (current_node->y + 1 < map->getHeightInPixels() &&
+        !graph[current_node->x][current_node->y + 1]->is_obstacle &&
+        !graph[current_node->x][current_node->y + 1]->is_visited)
+      neighbors.push_back(graph[current_node->x][current_node->y + 1]);
+
+    for (auto& neighbor : neighbors)
     {
       neighbor->parent = current_node;
       neighbor->is_visited = true;
@@ -97,9 +93,16 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
     }
   }
 
-  // Step-4: From goal node, traverse back to start node and create path with
+  ROS_DEBUG_STREAM("Search completed");
+
+  // Step-3: From goal node, traverse back to start node and create path with
   // vector of poses
-  global_path = createPath(goal_node);
+  global_path = createPath(goal_node, map);
+
+  ROS_DEBUG_STREAM("Valid global path found");
+
+  // Step-4 Reset graph for creating another path
+  map->resetGraph();
 
   // Step-5: Downsample number of poses to create a smooth trajectory for local
   // planner algorithm
@@ -123,6 +126,8 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
     downsampled_global_path.poses.push_back(global_path.poses[global_path.poses.size() - 1]);
   }
 
+  ROS_DEBUG_STREAM("Downsampling complete");
+
   // Step-6: Attach orientation to all poses by identifyin the slope between two
   // consecutive waypoints
   for (int i = 0; i < downsampled_global_path.poses.size(); i++)
@@ -143,69 +148,4 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
   }
 
   return downsampled_global_path;
-}
-
-void BFS::updateMap(const nav_msgs::OccupancyGrid& msg)
-{
-  map_ = msg;
-  createGraphFromMap();
-}
-
-void BFS::resetGraph()
-{
-  for (unsigned int i = 0; i < map_.info.width; i++)
-  {
-    for (unsigned int j = 0; j < map_.info.height; j++)
-    {
-      graph_[i][j]->is_visited = false;
-    }
-  }
-}
-
-void BFS::createGraphFromMap()
-{
-  graph_.resize(map_.info.width);
-  for (unsigned int i = 0; i < map_.info.height; i++)
-  {
-    graph_[i].resize(map_.info.height);
-  }
-
-  int m = 0;
-  int n = 0;
-
-  if (!map_.data.empty())
-  {
-    for (int i = 0; i < map_.data.size(); i++)
-    {
-      if (i > 0 && i % map_.info.height == 0)
-      {
-        n++;
-        m = 0;
-      }
-
-      Node* new_node = new Node();
-      new_node->x = m;
-      new_node->y = n;
-
-      if (map_.data[i] == 100)
-      {
-        new_node->is_obstacle = true;
-      }
-
-      graph_[m][n] = new_node;
-      m++;
-    }
-  }
-}
-
-void BFS::displayGraph() const
-{
-  for (unsigned int i = 0; i < map_.info.width; i++)
-  {
-    for (unsigned int j = 0; j < map_.info.height; j++)
-    {
-      std::cout << graph_[i][j]->is_obstacle << "\t";
-    }
-    std::cout << std::endl;
-  }
 }
