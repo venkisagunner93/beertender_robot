@@ -35,7 +35,7 @@ void CarRobot::displayRobotDetails() const
 
 State CarRobot::executeCommand(const ControlInput& control_input)
 {
-  ros::Duration dt = ros::Duration(0.1);
+  ros::Duration dt = ros::Duration(0.05);
 
   state_.theta = control_input.steering_velocity * dt.toSec() + state_.theta;
 
@@ -46,8 +46,6 @@ State CarRobot::executeCommand(const ControlInput& control_input)
   state_.angular_velocity = control_input.steering_velocity;
 
   prev_time_ = ros::Time::now();
-
-  broadcastPose();
 
   return state_;
 }
@@ -86,4 +84,9 @@ Dimension CarRobot::getDimension() const
 State CarRobot::getCurrentState() const
 {
   return state_;
+}
+
+void CarRobot::setNewState(const State& state)
+{
+  state_ = state;
 }

@@ -38,12 +38,13 @@ struct Node
  */
 struct DWAConfig
 {
-  float sim_time;            /*< Simulation time */
-  float dt;                  /*< Sample time */
-  int obstacle_gain;         /*< Obstacle gain */
-  int max_velocity_gain;     /*<  Max velocity gain */
-  int distance_to_goal_gain; /*< Distance to goal gain */
-  int window_size;           /*< Window size */
+  float sim_time;              /*< Simulation time */
+  float dt;                    /*< Sample time */
+  int sim_samples;             /*< Total sim samples */
+  int obstacle_gain;           /*< Obstacle gain */
+  int max_velocity_gain;       /*<  Max velocity gain */
+  float distance_to_goal_gain; /*< Distance to goal gain */
+  int window_size;             /*< Window size */
   /**
    * @brief Construct a new DWAConfig object
    */
@@ -51,6 +52,7 @@ struct DWAConfig
   {
     sim_time = 0.0;
     dt = 0.0;
+    sim_samples = 0;
     obstacle_gain = 0;
     max_velocity_gain = 0;
     distance_to_goal_gain = 0;

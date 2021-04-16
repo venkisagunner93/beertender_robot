@@ -28,6 +28,12 @@ class CarRobot : public Robot
 public:
   /**
    * @brief Construct a new Car Robot object
+   */
+  CarRobot()
+  {
+  }
+  /**
+   * @brief Construct a new Car Robot object
    * @param drive_limits - Drive limits
    */
   CarRobot(const DriveLimits& drive_limits);
@@ -43,6 +49,10 @@ public:
    * @return State
    */
   State executeCommand(const ControlInput& control_input);
+  /**
+   * @brief A method to broadcast pose
+   */
+  void broadcastPose();
   /**
    * @brief A method to display robot details
    */
@@ -62,12 +72,13 @@ public:
    * @return State
    */
   State getCurrentState() const;
+  /**
+   * @brief Set the New State object
+   * @param state New state
+   */
+  void setNewState(const State& state);
 
 private:
-  /**
-   * @brief A method to broadcast pose
-   */
-  void broadcastPose();
   /**
    * @brief Robot car dimension
    */

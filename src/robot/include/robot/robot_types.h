@@ -37,7 +37,9 @@ struct Dimension
 struct DriveLimits
 {
   float max_linear_velocity;      /*< Max linear velocity (m/s) */
+  float min_linear_velocity;      /*< Min linear velocity (m/s) */
   float max_angular_velocity;     /*< Max angular velocity (rad/s) */
+  float min_angular_velocity;     /*< Min angular velocity (rad/s) */
   float max_linear_acceleration;  /*< Max linear acceleration (m/s^2) */
   float max_angular_acceleration; /*< Max angular acceleration (rad/s^2) */
   float max_steering_angle;       /*< Max steering angle (rad) */
@@ -47,7 +49,9 @@ struct DriveLimits
   DriveLimits()
   {
     max_linear_velocity = 0.0;
+    min_linear_velocity = 0.0;
     max_angular_velocity = 0.0;
+    min_angular_velocity = 0.0;
     max_linear_acceleration = 0.0;
     max_angular_acceleration = 0.0;
     max_steering_angle = 0.0;

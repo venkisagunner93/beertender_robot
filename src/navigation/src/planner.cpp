@@ -1,23 +1,15 @@
 #include "navigation/planner.h"
 
-Planner::Planner(ros::NodeHandle& nh, Robot* robot) : listener_(buffer_), robot_(robot), dwa_(nh, robot)
+Planner::Planner(ros::NodeHandle& nh, Robot* robot)
+  : listener_(buffer_), robot_(robot), dwa_(nh, robot)
 {
   map_subscriber_ = nh.subscribe("basic_map", 100, &Planner::getMap, this);
   global_path_publisher_ = nh.advertise<nav_msgs::Path>("robot/global_path", 100);
   set_goal_service_ = nh.advertiseService("nav/set_goal", &Planner::setGoal, this);
-
-  stop_motion_planner_ = false;
-  motion_planner_thread_ = std::make_shared<std::thread>(std::bind(&Planner::motionPlanner, this));
 }
 
 Planner::~Planner()
 {
-  if (motion_planner_thread_->joinable())
-  {
-    stop_motion_planner_ = true;
-    motion_planner_thread_->join();
-    motion_planner_thread_.reset();
-  }
 }
 
 void Planner::getMap(const nav_msgs::OccupancyGrid& msg)
@@ -47,35 +39,51 @@ bool Planner::setGoal(navigation::SetGoalRequest& request, navigation::SetGoalRe
   start.point.x = tf_current_pose.transform.translation.x;
   start.point.y = tf_current_pose.transform.translation.y;
 
+  ROS_INFO_STREAM(goal);
+
+  // Find shortest global path - aka. global planning
+
+  nav_msgs::Path global_path = bfs_.getGlobalPath(start, goal, &map_);
+
+  if (!global_path_waypoints_.empty())
+  {
+    stop_local_planner_ = true;
+  }
+  else
+  {
+    stop_local_planner_ = false;
+  }
+
+  if (!global_path.poses.empty())
   {
     std::lock_guard<std::mutex> lock(mutex_);
-
-    // Find shortest global path - aka. global planning
-    global_path_ = bfs_.getGlobalPath(start, goal, &map_);
-
-    if (!global_path_.poses.empty())
+    for (auto& pose : global_path.poses)
     {
-      global_path_publisher_.publish(global_path_);
+      global_path_waypoints_.push(pose);
     }
+
+    global_path_publisher_.publish(global_path);
   }
 
   return true;
 }
 
-void Planner::motionPlanner()
+void Planner::run()
 {
-  while (!stop_motion_planner_)
-  {
-    nav_msgs::Path global_path;
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-      global_path = global_path_;
-      global_path_.poses.clear();
-    }
+  ControlInput command;
 
-    for (auto& pose : global_path.poses)
+  if (!global_path_waypoints_.empty())
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    waypoint_reached_ = dwa_.performLocalPlanning(global_path_waypoints_.top(), command);
+    if (waypoint_reached_)
     {
-      dwa_.executeTrajectory(pose);
+      ROS_DEBUG_STREAM("Goal: [" << global_path_waypoints_.top().pose.position.x << ","
+                                 << global_path_waypoints_.top().pose.position.y << "]");
+      global_path_waypoints_.pop();
     }
   }
+
+  robot_->executeCommand(command);
+  robot_->broadcastPose();
 }

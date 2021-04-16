@@ -52,6 +52,12 @@ public:
    * @return State
    */
   virtual State getCurrentState() const = 0;
+  /**
+   * @brief A method to broadcast pose to tf tree
+   */
+  virtual void broadcastPose()
+  {
+  }
 };
 
 #endif  // ROBOT_H

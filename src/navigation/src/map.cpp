@@ -87,6 +87,7 @@ void Map::resetGraph()
     for (unsigned int j = 0; j < map_.info.height; j++)
     {
       graph_[i][j]->is_visited = false;
+      graph_[i][j]->parent = nullptr;
     }
   }
 }

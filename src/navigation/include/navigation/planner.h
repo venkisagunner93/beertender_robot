@@ -20,6 +20,7 @@
 #include "navigation/SetGoal.h"
 #include "navigation/map.h"
 #include "robot/car_robot.h"
+#include <stack>
 
 /**
  * @brief A class for orchestrating planning and navigation
@@ -36,6 +37,10 @@ public:
    * @brief Destroy the Planner object
    */
   ~Planner();
+  /**
+   * @brief A method to run planner
+   */
+  void run();
 
 private:
   /**
@@ -52,14 +57,6 @@ private:
    */
   bool setGoal(navigation::SetGoalRequest& request, navigation::SetGoalResponse& response);
   /**
-   * @brief A method to plan robot motion
-   */
-  void motionPlanner();
-  /**
-   * @brief Motion planner thread
-   */
-  std::shared_ptr<std::thread> motion_planner_thread_;
-  /**
    * @brief Transform buffer
    */
   tf2_ros::Buffer buffer_;
@@ -67,10 +64,6 @@ private:
    * @brief Transform listener
    */
   tf2_ros::TransformListener listener_;
-  /**
-   * @brief Flag to stop motion planner
-   */
-  bool stop_motion_planner_;
   /**
    * @brief Breadth first search instance
    */
@@ -92,9 +85,17 @@ private:
    */
   std::mutex mutex_;
   /**
+   * @brief Flag to stop local planner
+   */
+  bool stop_local_planner_;
+  /**
+   * @brief Flag to check whether waypoint is reached
+   */
+  bool waypoint_reached_ = true;
+  /**
    * @brief Global path
    */
-  nav_msgs::Path global_path_;
+  std::stack<geometry_msgs::PoseStamped> global_path_waypoints_;
   /**
    * @brief Map subscriber
    */
