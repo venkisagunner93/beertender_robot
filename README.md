@@ -5,9 +5,9 @@ This repository is for building high-level software for beertender robot.
 TO-DO:
 
 - [ ] Create-2 driver integration
-- [X] Path planning
-    - [X] Global planning
-    - [X] Local planning
+- [ ] Path planning
+    - [ ] Global planning
+    - [ ] Local planning
 - [ ] Localization
     - [ ] Motion model
     - [ ] Sensor model
