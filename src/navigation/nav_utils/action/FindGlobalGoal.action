@@ -1,0 +1,8 @@
+#goal definition
+geometry_msgs/PointStamped goal
+---
+#result definition
+nav_msgs/Path global_path
+---
+#feedback definition
+float32 time_elapsed

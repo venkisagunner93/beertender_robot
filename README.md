@@ -1,11 +1,16 @@
-# robot_navigation
+# beertender_robot
 
-This repository helps in experimenting different parts of navigation.
+This repository is for building high-level software for beertender robot.
 
-- Path planning
-    - Global planning
-    - Local planning
-- Localization
+TO-DO:
+
+[] Create-2 driver integration
+[x] Path planning
+    [x] Global planning
+    [x] Local planning
+[] Localization
+    [] Motion model
+    [] Sensor model
 
 ## Package structure
 
@@ -15,8 +20,8 @@ Coming soon
 
 ```sh
 cd $HOME
-git clone https://github.com/venkisagunner93/robot_navigation.git
-cd robot_navigation
+git clone https://github.com/venkisagunner93/beertender_robot.git
+cd beertender_robot
 catkin_make
 source devel/setup.bash
 roslaunch bringup robot_bringup.launch

@@ -14,7 +14,7 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
-#include "navigation/local_planner/local_planner.h"
+#include "local_planner/local_planner.h"
 #include "robot/car_robot.h"
 
 /**

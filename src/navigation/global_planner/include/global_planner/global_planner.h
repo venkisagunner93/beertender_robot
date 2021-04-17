@@ -11,10 +11,10 @@
 #ifndef GLOBAL_PLANNER_H
 #define GLOBAL_PLANNER_H
 
-#include "navigation/planner_types.h"
-#include "navigation/map.h"
+#include <ros/ros.h>
 #include <geometry_msgs/PointStamped.h>
 #include <nav_msgs/Path.h>
+#include "nav_utils/map.h"
 
 /**
  * @brief A base class for global planner
@@ -32,12 +32,16 @@ public:
    * @brief Get the Global Path object
    * @param start - Start co-ordinate
    * @param goal - Goal co-ordinate
-   * @param map - Map instance
    * @return nav_msgs::Path
    */
   virtual nav_msgs::Path getGlobalPath(const geometry_msgs::PointStamped& start,
-                                       const geometry_msgs::PointStamped& goal,
-                                       Map* map) = 0;
+                                       const geometry_msgs::PointStamped& goal) = 0;
+
+protected:
+  /**
+   * @brief Map instance for global planning
+   */
+  Map map_;
 };
 
 #endif  // GLOBAL_PLANNER_H

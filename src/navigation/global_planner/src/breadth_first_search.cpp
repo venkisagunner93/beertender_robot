@@ -1,6 +1,6 @@
-#include "navigation/global_planner/breadth_first_search.h"
+#include "global_planner/breadth_first_search.h"
 
-nav_msgs::Path BFS::createPath(Node* goal_node, Map* map)
+nav_msgs::Path BFS::createPath(Node* goal_node)
 {
   nav_msgs::Path path;
   path.header.stamp = ros::Time::now();
@@ -17,8 +17,8 @@ nav_msgs::Path BFS::createPath(Node* goal_node, Map* map)
     while (current != nullptr)
     {
       geometry_msgs::PoseStamped pose;
-      pose.pose.position.x = current->x * map->getResolution();
-      pose.pose.position.y = current->y * map->getResolution();
+      pose.pose.position.x = current->x * map_.getResolution();
+      pose.pose.position.y = current->y * map_.getResolution();
       path.poses.push_back(pose);
       current = current->parent;
     }
@@ -28,15 +28,15 @@ nav_msgs::Path BFS::createPath(Node* goal_node, Map* map)
 }
 
 nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
-                                  const geometry_msgs::PointStamped& goal, Map* map)
+                                  const geometry_msgs::PointStamped& goal)
 {
   nav_msgs::Path global_path;
 
   // Step-1: Verify whether goal node is an obstacle or not
-  Node* goal_node = map->getNodeFromMap(goal.point.x, goal.point.y);
+  Node* goal_node = map_.getNodeFromMap(goal.point.x, goal.point.y);
 
-  if (goal_node->x >= map->getWidthInPixels() || goal_node->y >= map->getHeightInPixels() ||
-      goal_node->is_obstacle || !map)
+  if (goal_node->x >= map_.getWidthInPixels() || goal_node->y >= map_.getHeightInPixels() ||
+      goal_node->is_obstacle)
   {
     return global_path;
   }
@@ -44,9 +44,9 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
   // Step-2: Start breadth first search on the graph and find shortest path
   // between start and goal nodes
   std::queue<Node*> search_list;
-  std::vector<std::vector<Node*>> graph = map->getGraph();
+  std::vector<std::vector<Node*>> graph = map_.getGraph();
 
-  Node* start_node = map->getNodeFromMap(start.point.x, start.point.y);
+  Node* start_node = map_.getNodeFromMap(start.point.x, start.point.y);
 
   ROS_INFO_STREAM("Start: [" << start_node->x << "," << start_node->y << " => " << goal_node->x
                              << "," << goal_node->y << "] (in pixels)");
@@ -74,7 +74,7 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
         !graph[current_node->x - 1][current_node->y]->is_obstacle &&
         !graph[current_node->x - 1][current_node->y]->is_visited)
       neighbors.push_back(graph[current_node->x - 1][current_node->y]);
-    if (current_node->x + 1 < map->getWidthInPixels() &&
+    if (current_node->x + 1 < map_.getWidthInPixels() &&
         !graph[current_node->x + 1][current_node->y]->is_obstacle &&
         !graph[current_node->x + 1][current_node->y]->is_visited)
       neighbors.push_back(graph[current_node->x + 1][current_node->y]);
@@ -82,7 +82,7 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
         !graph[current_node->x][current_node->y - 1]->is_obstacle &&
         !graph[current_node->x][current_node->y - 1]->is_visited)
       neighbors.push_back(graph[current_node->x][current_node->y - 1]);
-    if (current_node->y + 1 < map->getHeightInPixels() &&
+    if (current_node->y + 1 < map_.getHeightInPixels() &&
         !graph[current_node->x][current_node->y + 1]->is_obstacle &&
         !graph[current_node->x][current_node->y + 1]->is_visited)
       neighbors.push_back(graph[current_node->x][current_node->y + 1]);
@@ -100,12 +100,12 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
 
   // Step-3: From goal node, traverse back to start node and create path with
   // vector of poses
-  global_path = createPath(goal_node, map);
+  global_path = createPath(goal_node);
 
   ROS_DEBUG_STREAM("Valid global path found");
 
   // Step-4 Reset graph for creating another path
-  map->resetGraph();
+  map_.resetGraph();
 
   // Step-5: Attach orientation to all poses by identifyin the slope between two
   // consecutive waypoints
@@ -149,7 +149,7 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
       slope_bc = atan2((pt_c.pose.position.y - pt_b.pose.position.y),
                        (pt_c.pose.position.x - pt_b.pose.position.x));
 
-      if(slope_ab != slope_bc)
+      if (slope_ab != slope_bc)
       {
         downsampled_global_path.poses.push_back(pt_a);
       }

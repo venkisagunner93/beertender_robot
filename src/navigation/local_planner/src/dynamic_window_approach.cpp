@@ -1,4 +1,4 @@
-#include "navigation/local_planner/dynamic_window_approach.h"
+#include "local_planner/dynamic_window_approach.h"
 #include <cmath>
 
 DWA::DWA(ros::NodeHandle& nh, Robot* robot) : robot_(robot)

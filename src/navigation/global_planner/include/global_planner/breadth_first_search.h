@@ -14,8 +14,8 @@
 #include <ros/ros.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <tf2/LinearMath/Quaternion.h>
-#include "navigation/global_planner/global_planner.h"
-#include "navigation/map.h"
+#include "global_planner/global_planner.h"
+#include "nav_utils/map.h"
 
 /**
  * @brief A class for breadth first search global plan
@@ -27,12 +27,10 @@ public:
    * @brief Get the Path object
    * @param start - Start co-ordinate
    * @param goal - Goal co-ordinate
-   * @param map - Map instance
    * @return nav_msgs::Path
    */
   nav_msgs::Path getGlobalPath(const geometry_msgs::PointStamped& start,
-                               const geometry_msgs::PointStamped& goal,
-                               Map* map);
+                               const geometry_msgs::PointStamped& goal);
 
 private:
   /**
@@ -40,7 +38,7 @@ private:
    * @param goal_node - Goal node
    * @return nav_msgs::Path
    */
-  nav_msgs::Path createPath(Node* goal_node, Map* map);
+  nav_msgs::Path createPath(Node* goal_node);
 };
 
 #endif  // BREADTH_FIRST_SEARCH_H

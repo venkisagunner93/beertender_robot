@@ -12,7 +12,29 @@
 #define MAP_H
 
 #include <nav_msgs/OccupancyGrid.h>
-#include "navigation/planner_types.h"
+
+/**
+ * @brief A structure for graph node
+ */
+struct Node
+{
+  unsigned int x;   /*< X co-ordinate */
+  unsigned int y;   /*< Y co-ordinate */
+  bool is_obstacle; /*< Obstacle flag */
+  bool is_visited;  /*< Visited flag */
+  Node* parent;     /*< Parent */
+  /**
+   * @brief Construct a new Node object
+   */
+  Node()
+  {
+    x = 0;
+    y = 0;
+    is_obstacle = false;
+    is_visited = false;
+    parent = nullptr;
+  }
+};
 
 /**
  * @brief A class for map and utilities

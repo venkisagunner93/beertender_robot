@@ -1,4 +1,4 @@
-#include "navigation/map.h"
+#include "nav_utils/map.h"
 
 void Map::setMap(const nav_msgs::OccupancyGrid& map)
 {

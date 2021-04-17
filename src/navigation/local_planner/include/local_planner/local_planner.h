@@ -1,37 +1,18 @@
 /**
- * @file planner_types.h
+ * @file local_planner.h
  * @author Venkatavaradhan Vembanoor Lakshmi Narayanan (venkatavaradhan93@gmail.com)
- * @brief A file for planner types
+ * @brief A base class for local planner
  * @version 0.1
- * @date 2020-07-26
+ * @date 2020-07-27
  * @copyright Copyright (c) 2020
  */
 
-#ifndef PLANNER_TYPES_H
-#define PLANNER_TYPES_H
+#ifndef LOCAL_PLANNER_H
+#define LOCAL_PLANNER_H
 
-/**
- * @brief A structure for graph node
- */
-struct Node
-{
-  unsigned int x;   /*< X co-ordinate */
-  unsigned int y;   /*< Y co-ordinate */
-  bool is_obstacle; /*< Obstacle flag */
-  bool is_visited;  /*< Visited flag */
-  Node* parent;     /*< Parent */
-  /**
-   * @brief Construct a new Node object
-   */
-  Node()
-  {
-    x = 0;
-    y = 0;
-    is_obstacle = false;
-    is_visited = false;
-    parent = nullptr;
-  }
-};
+#include <ros/ros.h>
+#include "robot/robot.h"
+#include "robot/robot_types.h"
 
 /**
  * @brief A structure for DWA configuration
@@ -77,4 +58,18 @@ struct DynamicWindow
   }
 };
 
-#endif  // PLANNER_TYPES_H
+/**
+ * @brief A base class for local planner
+ */
+class LocalPlanner
+{
+public:
+  /**
+   * @brief Destroy the Local Planner object
+   */
+  virtual ~LocalPlanner()
+  {
+  }
+};
+
+#endif  // LOCAL_PLANNER_H
