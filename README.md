@@ -11,6 +11,11 @@ TO-DO:
 - [ ] Localization
     - [ ] Motion model
     - [ ] Sensor model
+- [ ] CI/CD
+    - [ ] Build pipeline
+    - [ ] Testing pipeline
+    - [ ] Code quality pipeline
+    - [ ] Deployment pipeline 
 
 ## Package structure
 
