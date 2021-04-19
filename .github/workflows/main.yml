@@ -6,6 +6,7 @@ jobs:
     runs-on: self-hosted
     container: docker://venkisagunner93/ros_github_actions:latest
     steps:
+      - uses: AutoModality/action-clean@v1
       - uses: actions/checkout@v1          
       - name: Build package
         run: |
