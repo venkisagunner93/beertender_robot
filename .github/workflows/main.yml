@@ -1,21 +1,13 @@
 # This is a basic workflow to help you get started with Actions
-
-name: CI
-
-# Controls when the action will run. 
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
-jobs:
+name: ROS melodic CI
+on: [push]
+jobs:    
   build:
     runs-on: ubuntu-latest
-    env: 
-      ROS_DISTRO: noetic
+    container: docker://venkisagunner93/ros_github_actions:latest
     steps:
-      - uses: docker://venkisagunner93/ros_github_actions:latest
-      - name: catkin_make
-        run: ls
+      - uses: actions/checkout@v1          
+      - name: Build package
+        run: |
+          cd $GITHUB_WORKSPACE
+          /bin/bash -c "source devel/setup.bash && catkin_make"
