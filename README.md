@@ -1,6 +1,6 @@
 # beertender_robot 
 
-[![](https://github.com/venkisagunner93/beertender_robot/workflows/ROS%20melodic%20CI/badge.svg)](https://github.com/venkisagunner93/beertender_robot/actions)
+[![](https://github.com/venkisagunner93/beertender_robot/workflows/CI/badge.svg)](https://github.com/venkisagunner93/beertender_robot/actions)
 
 This repository is for building high-level software for beertender robot.
 
