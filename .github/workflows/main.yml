@@ -1,0 +1,13 @@
+# This is a basic workflow to help you get started with Actions
+name: ROS melodic CI
+on: [push]
+jobs:    
+  build:
+    runs-on: self-hosted
+    container: docker://venkisagunner93/ros_github_actions:latest
+    steps:
+      - uses: actions/checkout@v1          
+      - name: Build package
+        run: |
+          cd $GITHUB_WORKSPACE
+          /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
