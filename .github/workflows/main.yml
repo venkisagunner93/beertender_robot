@@ -16,7 +16,7 @@ jobs:
     env: 
       ROS_DISTRO: noetic
     steps:
-      - uses: venkisagunner93/ros_github_actions@latest
+      - uses: venkisagunner93/ros_github_actions
       - name: catkin_make
         run: |
           ls
