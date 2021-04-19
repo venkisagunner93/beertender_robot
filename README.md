@@ -15,6 +15,7 @@ TO-DO:
     - [ ] Sensor model
 - [ ] CI/CD
     - [x] Build pipeline
+    - [x] Self-hosted runner
     - [ ] Testing pipeline
     - [ ] Code quality pipeline
     - [ ] Deployment pipeline 
