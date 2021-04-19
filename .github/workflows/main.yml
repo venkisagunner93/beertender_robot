@@ -10,4 +10,4 @@ jobs:
       - name: Build package
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash -c "source devel/setup.bash && catkin_make"
+          /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
