@@ -3,7 +3,7 @@ name: ROS melodic CI
 on: [push]
 jobs:    
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     container: docker://venkisagunner93/ros_github_actions:latest
     steps:
       - uses: actions/checkout@v1          
