@@ -10,18 +10,16 @@ on:
   pull_request:
     branches: [ master ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    env:
+    runs-on: ubuntu-latest
+    env: 
       ROS_DISTRO: noetic
     steps:
-      - uses: actions/checkout@v2
+      - uses: venkisagunner93/ros_github_actions@latest
       - name: catkin_make
         run: |
+          ls
           source /opt/ros/$ROS_DISTRO/setup.bash
           cd /beertender_robot
           catkin_make
