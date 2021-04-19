@@ -18,8 +18,4 @@ jobs:
     steps:
       - uses: docker://venkisagunner93/ros_github_actions:latest
       - name: catkin_make
-        run: |
-          ls
-          source /opt/ros/$ROS_DISTRO/setup.bash
-          cd /beertender_robot
-          catkin_make
+        run: ls
