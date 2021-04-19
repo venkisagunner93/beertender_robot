@@ -12,7 +12,7 @@ TO-DO:
     - [ ] Motion model
     - [ ] Sensor model
 - [ ] CI/CD
-    - [ ] Build pipeline
+    - [x] Build pipeline
     - [ ] Testing pipeline
     - [ ] Code quality pipeline
     - [ ] Deployment pipeline 
