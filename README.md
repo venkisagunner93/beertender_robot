@@ -23,7 +23,9 @@ TO-DO:
         - [x] clang-format
         - [ ] catkin_lint
         - [ ] roscpp_lint
-    - [ ] Deployment pipeline 
+    - [ ] Deployment pipeline
+        - [ ] Containerize deployment
+        - [ ] Robot as a docker registry 
     - [ ] Data collection pipeline
         - [ ] Logs
         - [ ] Bag files
