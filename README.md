@@ -17,8 +17,17 @@ TO-DO:
     - [x] Build pipeline
     - [x] Self-hosted runner
     - [ ] Testing pipeline
+        - [ ] gtest/gmock
+        - [ ] rostest 
     - [ ] Code quality pipeline
+        - [x] clang-format
+        - [ ] catkin_lint
+        - [ ] roscpp_lint
     - [ ] Deployment pipeline 
+    - [ ] Data collection pipeline
+        - [ ] Logs
+        - [ ] Bag files
+        - [ ] Metrics
 
 ## Package structure
 
