@@ -9,10 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
 )
 
-add_service_files(
-  FILES
-)
-
 add_action_files(
   FILES 
   FindGlobalPath.action
