@@ -11,12 +11,12 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_service_files(
   FILES
-  SetGoal.srv
 )
 
 add_action_files(
   FILES 
-  FindGlobalGoal.action
+  FindGlobalPath.action
+  ReachGlobalPose.action
 )
 
 generate_messages(
@@ -45,7 +45,9 @@ include_directories(include
 )
 
 add_library(${PROJECT_NAME}_lib
-  src/map.cpp)
+  src/map.cpp
+  src/tf_helper.cpp
+)
 
 target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
 add_dependencies(${PROJECT_NAME}_lib nav_utils_generate_messages_cpp)

@@ -1,0 +1,9 @@
+#goal definition
+geometry_msgs/PoseStamped goal
+---
+#result definition
+bool has_reached
+nav_msgs/Path global_path
+---
+#feedback definition
+geometry_msgs/PoseStamped current_pose

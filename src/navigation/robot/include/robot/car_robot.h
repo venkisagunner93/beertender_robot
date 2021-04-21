@@ -12,13 +12,9 @@
 #define CAR_ROBOT_H
 
 #include "robot/robot.h"
-#include <geometry_msgs/TransformStamped.h>
 #include <math.h>
-#include <ros/ros.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_ros/transform_broadcaster.h>
-#include <tf2_ros/transform_listener.h>
 #include <urdf/model.h>
+#include <ros/ros.h>
 
 /**
  * @brief A class for car like robot
@@ -28,40 +24,24 @@ class CarRobot : public Robot
 public:
   /**
    * @brief Construct a new Car Robot object
+   * @param init_state Initial state
    */
-  CarRobot()
-  {
-  }
-  /**
-   * @brief Construct a new Car Robot object
-   * @param drive_limits - Drive limits
-   */
-  CarRobot(const DriveLimits& drive_limits);
+  CarRobot(const State& init_state);
   /**
    * @brief Destroy the Car Robot object
    */
-  ~CarRobot()
-  {
-  }
+  ~CarRobot() {}
   /**
-   * @brief A method to update state
-   * @param control_input - Control input
-   * @return State
+   * @brief A method to update robot state
+   * @param v Forward velocity
+   * @param w Angular velocity
+   * @return State 
    */
-  State executeCommand(const ControlInput& control_input);
-  /**
-   * @brief A method to broadcast pose
-   */
-  void broadcastPose();
+  State updateRobotState(const float& v, const float& w);
   /**
    * @brief A method to display robot details
    */
   void displayRobotDetails() const;
-  /**
-   * @brief Get robot's drive limits
-   * @return DriveLimits
-   */
-  DriveLimits getDriveLimits() const;
   /**
    * @brief Get dimensions of the robot
    * @return Dimension
@@ -71,22 +51,18 @@ public:
    * @brief Get current state of the robot
    * @return State
    */
-  State getCurrentState() const;
+  State getState() const;
   /**
-   * @brief Set the New State object
-   * @param state New state
+   * @brief Set the Current State object
+   * @param state Current state
    */
-  void setNewState(const State& state);
+  void setState(const State& state);
 
 private:
   /**
    * @brief Robot car dimension
    */
   Dimension dimension_;
-  /**
-   * @brief Robot car drive limits
-   */
-  DriveLimits drive_limits_;
   /**
    * @brief Current state of the robot
    */

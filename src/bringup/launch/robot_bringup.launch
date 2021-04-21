@@ -11,5 +11,5 @@
     <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file) /map:=$(arg map_topic) /map_metadata:=$(arg map_metadata)"/>
     <node name="rviz" type="rviz" pkg="rviz" args="-d $(arg perspective)"/>
 
-    <node name="planner" type="navigation" pkg="navigation" output="screen"/>
+    <include file="$(find planner)/launch/planner.launch"/>
 </launch>

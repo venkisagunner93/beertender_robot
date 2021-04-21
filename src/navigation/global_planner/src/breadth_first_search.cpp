@@ -1,4 +1,44 @@
 #include "global_planner/breadth_first_search.h"
+#include "nav_utils/tf_helper.h"
+
+BFS::BFS(ros::NodeHandle* nh)
+{
+  initializeSubscribers(nh);
+  initializePublishers(nh);
+  global_goal_.header.stamp = ros::Time::now();
+}
+
+void BFS::initializeSubscribers(ros::NodeHandle* nh)
+{
+  global_goal_subscriber_ = nh->subscribe("nav/global_goal", 1, &BFS::globalGoalCallback, this);
+}
+
+void BFS::initializePublishers(ros::NodeHandle* nh)
+{
+  global_path_publisher_ = nh->advertise<nav_msgs::Path>("nav/global_path", 1, true);
+}
+
+void BFS::globalGoalCallback(const geometry_msgs::PointStamped& msg)
+{
+  global_goal_ = msg;
+}
+
+void BFS::runGlobalPlanning()
+{
+  if ((global_goal_.header.stamp - ros::Time::now()).toSec() < 1.0)
+  {
+    geometry_msgs::PointStamped start_point;
+    geometry_msgs::PoseStamped start_pose;
+    if (tf_helper::getCurrentLocationFromTF("map", "base_link", &start_pose))
+    {
+      start_point.header = start_pose.header;
+      start_point.point.x = start_pose.pose.position.x;
+      start_point.point.y = start_pose.pose.position.y;
+
+      global_path_publisher_.publish(getGlobalPath(start_point, global_goal_));
+    }
+  }
+}
 
 nav_msgs::Path BFS::createPath(Node* goal_node)
 {
