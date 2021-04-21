@@ -12,20 +12,32 @@
 
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 
 namespace tf_helper
 {
 /**
- * @brief Get the Current Location From TF object
+ * @brief Get the Current Location From TF tree
  * @param parent_frame Parent frame in TF tree
  * @param child_frame Child frame in TF tree
  * @param pose Current pose
- * @return true 
- * @return false 
+ * @return true
+ * @return false
  */
-bool getCurrentLocationFromTF(std::string parent_frame, std::string child_frame, geometry_msgs::PoseStamped* pose);
+bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
+                          geometry_msgs::PoseStamped* pose);
+/**
+ * @brief Broadcast current pose to TF tree
+ * @param x State x
+ * @param y State y
+ * @param theta State theta
+ * @param parent_frame Parent frame in TF tree
+ * @param child_frame Child frame in TF tree
+ */
+void broadcastCurrentPoseToTF(float x, float y, float theta, std::string parent_frame,
+                              std::string child_frame);
 }  // namespace tf_helper
 
 #endif  // TF_HELPER_H

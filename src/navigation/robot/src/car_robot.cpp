@@ -39,32 +39,24 @@ State CarRobot::updateRobotState(const float& v, const float& w)
   state_.x = v * dt.toSec() * cos(state_.theta) + state_.x;
   state_.y = v * dt.toSec() * sin(state_.theta) + state_.y;
 
-  state_.linear_velocity = v;
-  state_.angular_velocity = w;
+  state_.v = v;
+  state_.w = w;
 
   return state_;
 }
 
-// void CarRobot::broadcastPose()
-// {
-//   static tf2_ros::TransformBroadcaster broadcaster;
-//   geometry_msgs::TransformStamped current_pose;
+State CarRobot::updateRobotState(const float& v, const float& w, const float& dt)
+{
+  state_.theta = w * dt + state_.theta;
 
-//   current_pose.header.stamp = ros::Time::now();
-//   current_pose.header.frame_id = "map";
-//   current_pose.child_frame_id = "base_link";
-//   current_pose.transform.translation.x = state_.x;
-//   current_pose.transform.translation.y = state_.y;
-//   current_pose.transform.translation.z = 0.0;
-//   tf2::Quaternion q;
-//   q.setRPY(0, 0, state_.theta);
-//   current_pose.transform.rotation.x = q.x();
-//   current_pose.transform.rotation.y = q.y();
-//   current_pose.transform.rotation.z = q.z();
-//   current_pose.transform.rotation.w = q.w();
+  state_.x = v * dt * cos(state_.theta) + state_.x;
+  state_.y = v * dt * sin(state_.theta) + state_.y;
 
-//   broadcaster.sendTransform(current_pose);
-// }
+  state_.v = v;
+  state_.w = w;
+
+  return state_;
+}
 
 Dimension CarRobot::getDimension() const
 {

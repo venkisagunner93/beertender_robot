@@ -38,11 +38,11 @@ struct Dimension
  */
 struct State
 {
-  float x;                /*< X position (m) */
-  float y;                /*< Y position (m) */
-  float theta;            /*< Orientation in yaw (rad) */
-  float linear_velocity;  /*< Linear velocity (m/s) */
-  float angular_velocity; /*< Angular velocity (rad/s) */
+  float x;     /*< X position (m) */
+  float y;     /*< Y position (m) */
+  float theta; /*< Orientation in yaw (rad) */
+  float v;     /*< Linear velocity (m/s) */
+  float w;     /*< Angular velocity (rad/s) */
   /**
    * @brief Construct a new State object
    */
@@ -51,8 +51,8 @@ struct State
     x = 0.0;
     y = 0.0;
     theta = 0.0;
-    linear_velocity = 0.0;
-    angular_velocity = 0.0;
+    v = 0.0;
+    w = 0.0;
   }
 };
 
@@ -73,6 +73,14 @@ public:
    * @return State
    */
   virtual State updateRobotState(const float& v, const float& w) = 0;
+  /**
+   * @brief A method to update robot state
+   * @param v Forward velocity
+   * @param w Angular velocity
+   * @param dt Time step
+   * @return State 
+   */
+  virtual State updateRobotState(const float& v, const float& w, const float& dt) = 0;
   /**
    * @brief A method to display robot details
    */

@@ -17,6 +17,9 @@
 #include "global_planner/global_planner.h"
 #include "nav_utils/map.h"
 
+#define PARENT_FRAME "map"
+#define CHILD_FRAME "base_link"
+
 /**
  * @brief A class for breadth first search global plan
  */

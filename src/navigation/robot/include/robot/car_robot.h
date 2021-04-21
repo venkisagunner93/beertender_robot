@@ -39,6 +39,14 @@ public:
    */
   State updateRobotState(const float& v, const float& w);
   /**
+   * @brief A method to update robot state
+   * @param v Forward velocity
+   * @param w Angular velocity
+   * @param dt Time step
+   * @return State 
+   */
+  State updateRobotState(const float& v, const float& w, const float& dt);
+  /**
    * @brief A method to display robot details
    */
   void displayRobotDetails() const;

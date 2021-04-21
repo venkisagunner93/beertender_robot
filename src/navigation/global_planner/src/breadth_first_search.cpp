@@ -29,7 +29,7 @@ void BFS::runGlobalPlanning()
   {
     geometry_msgs::PointStamped start_point;
     geometry_msgs::PoseStamped start_pose;
-    if (tf_helper::getCurrentLocationFromTF("map", "base_link", &start_pose))
+    if (tf_helper::getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &start_pose))
     {
       start_point.header = start_pose.header;
       start_point.point.x = start_pose.pose.position.x;
@@ -44,7 +44,7 @@ nav_msgs::Path BFS::createPath(Node* goal_node)
 {
   nav_msgs::Path path;
   path.header.stamp = ros::Time::now();
-  path.header.frame_id = "map";
+  path.header.frame_id = PARENT_FRAME;
 
   if (goal_node && goal_node->parent == nullptr)
   {
