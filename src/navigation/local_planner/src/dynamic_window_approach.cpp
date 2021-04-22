@@ -148,7 +148,7 @@ bool DWA::isInsideGoalRegion(const geometry_msgs::PoseStamped& goal)
     as_.publishFeedback(feedback_);
 
     distance_to_goal = sqrt(pow((current_pose.pose.position.x - goal.pose.position.x), 2) +
-                            pow((current_pose.pose.position.y - goal.pose.position.y), 2));
+                                  pow((current_pose.pose.position.y - goal.pose.position.y), 2));
   }
   return distance_to_goal <= config_.goal_region;
 }
@@ -157,7 +157,7 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
 {
   while (ros::ok())
   {
-    if (as_.isPreemptRequested())
+    if(as_.isPreemptRequested())
     {
       as_.setPreempted();
       break;

@@ -2,7 +2,7 @@
 
 namespace tf_helper
 {
-bool getCurrentLocationFromTF(std::string parent_frame, std::string child_frame,
+bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
                               geometry_msgs::PoseStamped* pose)
 {
   tf2_ros::Buffer tf_buffer;

@@ -37,4 +37,4 @@ roslaunch bringup robot_bringup.launch
 
 Output looks like the following:
 
-![rviz](pics/rviz.png)
+![rviz](.images/rviz.png)

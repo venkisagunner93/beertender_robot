@@ -1,3 +1,0 @@
-[submodule "src/create_robot"]
-	path = src/create_robot
-	url = https://github.com/AutonomyLab/create_robot
