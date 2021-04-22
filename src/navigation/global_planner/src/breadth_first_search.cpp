@@ -6,11 +6,13 @@ BFS::BFS(ros::NodeHandle* nh)
   initializeSubscribers(nh);
   initializePublishers(nh);
   global_goal_.header.stamp = ros::Time::now();
+  new_goal_received_ = false;
 }
 
 void BFS::initializeSubscribers(ros::NodeHandle* nh)
 {
   global_goal_subscriber_ = nh->subscribe("nav/global_goal", 1, &BFS::globalGoalCallback, this);
+  map_subscriber_ = nh->subscribe("map", 1, &BFS::mapCallback, this);
 }
 
 void BFS::initializePublishers(ros::NodeHandle* nh)
@@ -21,12 +23,19 @@ void BFS::initializePublishers(ros::NodeHandle* nh)
 void BFS::globalGoalCallback(const geometry_msgs::PointStamped& msg)
 {
   global_goal_ = msg;
+  new_goal_received_ = true;
+}
+
+void BFS::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg)
+{
+  map_.setMap(*msg);
 }
 
 void BFS::runGlobalPlanning()
 {
-  if ((global_goal_.header.stamp - ros::Time::now()).toSec() < 1.0)
+  if (new_goal_received_)
   {
+    new_goal_received_ = false;
     geometry_msgs::PointStamped start_point;
     geometry_msgs::PoseStamped start_pose;
     if (tf_helper::getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &start_pose))
@@ -34,7 +43,6 @@ void BFS::runGlobalPlanning()
       start_point.header = start_pose.header;
       start_point.point.x = start_pose.pose.position.x;
       start_point.point.y = start_pose.pose.position.y;
-
       global_path_publisher_.publish(getGlobalPath(start_point, global_goal_));
     }
   }

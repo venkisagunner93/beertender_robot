@@ -16,6 +16,7 @@
 
   <build_depend>roslint</build_depend>
 
+  <depend>ackermann_msgs</depend>
   <depend>create_msgs</depend>
   <depend>diagnostic_msgs</depend>
   <depend>diagnostic_updater</depend>

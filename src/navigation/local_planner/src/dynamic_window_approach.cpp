@@ -5,9 +5,22 @@ DWA::DWA(ros::NodeHandle* nh, std::string action_name)
   , action_name_(action_name)
 {
   trajectory_publisher_ = nh->advertise<nav_msgs::Path>("nav/local_trajectory", 100);
-  cmd_vel_publisher_ = nh->advertise<geometry_msgs::TwistStamped>("cmd_vel", 100);
+  cmd_vel_publisher_ = nh->advertise<ackermann_msgs::AckermannDrive>("cmd_vel", 100);
+
+  // Load initial state and configurations
+  loadInitState(nh);
+  loadDWAConfig(nh);
 
   as_.start();
+}
+
+void DWA::broadcastCurrentPose()
+{
+  State state = robot_->getState();
+  
+  // Broadcasting initial state of the robot
+  tf_helper::broadcastCurrentPoseToTF(state.x, state.y, state.theta, PARENT_FRAME,
+                                      CHILD_FRAME);
 }
 
 void DWA::loadInitState(ros::NodeHandle* nh)
@@ -148,7 +161,7 @@ bool DWA::isInsideGoalRegion(const geometry_msgs::PoseStamped& goal)
     as_.publishFeedback(feedback_);
 
     distance_to_goal = sqrt(pow((current_pose.pose.position.x - goal.pose.position.x), 2) +
-                                  pow((current_pose.pose.position.y - goal.pose.position.y), 2));
+                            pow((current_pose.pose.position.y - goal.pose.position.y), 2));
   }
   return distance_to_goal <= config_.goal_region;
 }
@@ -157,7 +170,7 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
 {
   while (ros::ok())
   {
-    if(as_.isPreemptRequested())
+    if (as_.isPreemptRequested())
     {
       as_.setPreempted();
       break;
@@ -168,7 +181,6 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
       float trajectory_cost = 0.0;
       float lowest_cost = 1e6;
       ackermann_msgs::AckermannDrive best_u;
-      geometry_msgs::TwistStamped u;
 
       std::vector<ackermann_msgs::AckermannDrive> u_vec = generateVelocitySamples();
 
@@ -195,11 +207,7 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
         best_u.steering_angle_velocity = config_.limits.max_w;
       }
 
-      u.header.stamp = ros::Time::now();
-      u.twist.linear.x = best_u.speed;
-      u.twist.angular.z = best_u.steering_angle_velocity;
-
-      cmd_vel_publisher_.publish(u);
+      cmd_vel_publisher_.publish(best_u);
     }
     else
     {

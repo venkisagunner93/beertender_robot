@@ -17,6 +17,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <ackermann_msgs/AckermannDrive.h>
 #include <actionlib/server/simple_action_server.h>
+#include <thread>
 #include "local_planner/local_planner.h"
 #include "robot/car_robot.h"
 #include "nav_utils/ReachGlobalPoseAction.h"
@@ -112,6 +113,10 @@ public:
    * @brief Destroy the Dwa Local Planner object
    */
   ~DWA() {}
+  /**
+   * @brief A method to update robot's current pose
+   */
+  void broadcastCurrentPose();
 
 private:
   /**
@@ -169,6 +174,8 @@ private:
    * @brief Robot instance
    */
   std::unique_ptr<Robot> robot_;
+
+  std::thread tf_broadcaster_thread_;
   /**
    * @brief Publish all trajectories
    */

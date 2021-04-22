@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf2_ros
   urdf
+  nav_utils
 )
 
 ###################################
@@ -13,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES robot_lib
+  DEPENDS nav_utils
 )
 
 ###########
@@ -21,6 +23,7 @@ catkin_package(
 
 include_directories(include
   ${catkin_INCLUDE_DIRS}
+  ${nav_utils_INCLUDE_DIRS}
 )
 
 add_library(robot_lib

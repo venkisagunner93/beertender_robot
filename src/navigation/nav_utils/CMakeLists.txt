@@ -4,7 +4,6 @@ project(nav_utils)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf2_ros
-  robot
   message_generation
   nav_msgs
 )
@@ -26,7 +25,6 @@ generate_messages(
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  DEPENDS robot
   CATKIN_DEPENDS message_runtime
   LIBRARIES ${PROJECT_NAME}_lib
 )
@@ -37,7 +35,6 @@ catkin_package(
 
 include_directories(include
   ${catkin_INCLUDE_DIRS}
-  ${robot_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}_lib

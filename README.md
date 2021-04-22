@@ -6,7 +6,7 @@ This repository is for building high-level software for beertender robot.
 
 TO-DO:
 
-- [ ] Create-2 driver integration
+- [x] Create-2 driver integration
 - [x] Path planning
     - [x] Global planning
     - [x] Local planning

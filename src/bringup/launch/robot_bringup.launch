@@ -3,13 +3,9 @@
     <param name="robot" command="cat $(find robot)/urdf/car_robot.urdf"/>
     <param name="robot_estimate" command="cat $(find robot)/urdf/car_robot_estimate.urdf"/>
 
-    <arg name="map_file" default="$(find environments)/maps/map.yaml"/>
-    <arg name="perspective" default="$(find environments)/rviz/viewer.rviz"/>
-    <arg name="map_topic" default="basic_map"/>
-    <arg name="map_metadata" default="basic_map_metadata"/>
+    <!-- Environment -->
+    <include file="$(find environments)/launch/env.launch"/>
 
-    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file) /map:=$(arg map_topic) /map_metadata:=$(arg map_metadata)"/>
-    <node name="rviz" type="rviz" pkg="rviz" args="-d $(arg perspective)"/>
-
+    <!-- Planning stack -->
     <include file="$(find planner)/launch/planner.launch"/>
 </launch>

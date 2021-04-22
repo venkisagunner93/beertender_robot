@@ -11,10 +11,11 @@
 #ifndef CAR_ROBOT_H
 #define CAR_ROBOT_H
 
-#include "robot/robot.h"
 #include <math.h>
 #include <urdf/model.h>
 #include <ros/ros.h>
+#include "robot/robot.h"
+#include "nav_utils/tf_helper.h"
 
 /**
  * @brief A class for car like robot

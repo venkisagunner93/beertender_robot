@@ -56,6 +56,11 @@ private:
    */
   void globalGoalCallback(const geometry_msgs::PointStamped& msg);
   /**
+   * @brief A subscriber callback for global map
+   * @param msg Global map
+   */
+  void mapCallback(const nav_msgs::OccupancyGridConstPtr& msg);
+  /**
    * @brief Get the Path object
    * @param start - Start co-ordinate
    * @param goal - Goal co-ordinate
@@ -70,6 +75,10 @@ private:
    */
   nav_msgs::Path createPath(Node* goal_node);
   /**
+   * @brief Is new goal received
+   */
+  bool new_goal_received_;
+  /**
    * @brief Map instance for global planning
    */
   Map map_;
@@ -77,6 +86,10 @@ private:
    * @brief ROS subscriber for getting global goal
    */
   ros::Subscriber global_goal_subscriber_;
+  /**
+   * @brief ROS subscriber for getting map
+   */
+  ros::Subscriber map_subscriber_;
   /**
    * @brief ROS publisher for global path
    */

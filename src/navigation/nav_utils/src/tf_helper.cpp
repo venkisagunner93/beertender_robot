@@ -12,7 +12,8 @@ bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
 
   try
   {
-    tf_pose = tf_buffer.lookupTransform(child_frame, parent_frame, ros::Time(0));
+    // Max wait time for transform will be 5s
+    tf_pose = tf_buffer.lookupTransform(parent_frame, child_frame, ros::Time(0), ros::Duration(5.0));
   }
   catch (tf2::TransformException& ex)
   {
