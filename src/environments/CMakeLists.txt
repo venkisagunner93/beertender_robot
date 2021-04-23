@@ -10,6 +10,6 @@ catkin_package()
 #############
 
 # Install assets
-install(DIRECTORY maps rviz
+install(DIRECTORY launch maps rviz
 	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

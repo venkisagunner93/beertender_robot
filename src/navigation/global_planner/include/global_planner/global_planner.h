@@ -25,9 +25,7 @@ public:
   /**
    * @brief Destroy the Global Planner object
    */
-  virtual ~GlobalPlanner()
-  {
-  }
+  virtual ~GlobalPlanner() {}
   /**
    * @brief Get the Global Path object
    * @param start - Start co-ordinate
@@ -36,12 +34,6 @@ public:
    */
   virtual nav_msgs::Path getGlobalPath(const geometry_msgs::PointStamped& start,
                                        const geometry_msgs::PointStamped& goal) = 0;
-
-protected:
-  /**
-   * @brief Map instance for global planning
-   */
-  Map map_;
 };
 
 #endif  // GLOBAL_PLANNER_H

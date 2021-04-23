@@ -69,5 +69,7 @@
         "variant": "cpp"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/src",
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "doxdocgen.generic.authorEmail": "venkatavaradhan93@gmail.com",
+    "doxdocgen.generic.authorName": "Venkatavaradhan Vembanoor Lakshmi Narayanan"
 }

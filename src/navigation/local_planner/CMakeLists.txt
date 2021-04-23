@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(local_planner)
 
 find_package(catkin REQUIRED COMPONENTS
+  ackermann_msgs
   roscpp
   tf2_ros
   robot

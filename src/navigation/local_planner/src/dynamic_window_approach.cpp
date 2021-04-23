@@ -1,81 +1,122 @@
 #include "local_planner/dynamic_window_approach.h"
-#include <cmath>
 
-DWA::DWA(ros::NodeHandle& nh, Robot* robot) : robot_(robot)
+DWA::DWA(ros::NodeHandle* nh, std::string action_name)
+  : as_(*nh, action_name, boost::bind(&DWA::performLocalPlanning, this, _1), false)
+  , action_name_(action_name)
 {
-  config_.sim_time = 2.0;                               // in seconds
-  config_.dt = 0.05;                                    // time step
-  config_.sim_samples = config_.sim_time / config_.dt;  // Total sim samples
-  config_.window_size = 5;                              // Velocity space max window size
-  config_.obstacle_gain = 0;
-  config_.distance_to_goal_gain = 1;
-  config_.max_velocity_gain = 1;
+  trajectory_publisher_ = nh->advertise<nav_msgs::Path>("nav/local_trajectory", 100);
+  cmd_vel_publisher_ = nh->advertise<ackermann_msgs::AckermannDrive>("cmd_vel", 100);
 
-  trajectory_publisher_ = nh.advertise<nav_msgs::Path>("/nav/local_trajectory", 100);
+  // Load initial state and configurations
+  loadInitState(nh);
+  loadDWAConfig(nh);
+
+  as_.start();
 }
 
-std::vector<ControlInput> DWA::generateVelocitySamples()
+void DWA::broadcastCurrentPose()
 {
-  std::vector<ControlInput> control_inputs;
+  State state = robot_->getState();
+  
+  // Broadcasting initial state of the robot
+  tf_helper::broadcastCurrentPoseToTF(state.x, state.y, state.theta, PARENT_FRAME,
+                                      CHILD_FRAME);
+}
 
-  State current_state = robot_->getCurrentState();
-  DriveLimits limits = robot_->getDriveLimits();
+void DWA::loadInitState(ros::NodeHandle* nh)
+{
+  // Loading initial state for the robot
+  State init_state;
+  nh->param<float>("planner/init/x", init_state.x, 0.0);
+  nh->param<float>("planner/init/y", init_state.y, 0.0);
+  nh->param<float>("planner/init/theta", init_state.theta, M_PI / 2);
+  nh->param<float>("planner/init/v", init_state.v, 0.0);
+  nh->param<float>("planner/init/w", init_state.w, 0.0);
 
-  float min_lin_velocity =
-      std::max((current_state.linear_velocity - limits.max_linear_acceleration * config_.dt),
-               limits.min_linear_velocity);
-  float max_lin_velocity =
-      std::min((current_state.linear_velocity + limits.max_linear_acceleration * config_.dt),
-               limits.max_linear_velocity);
-  float min_ang_velocity =
-      std::max((current_state.angular_velocity - limits.max_angular_acceleration * config_.dt),
-               limits.min_angular_velocity);
-  float max_ang_velocity =
-      std::min((current_state.angular_velocity + limits.max_angular_acceleration * config_.dt),
-               limits.max_angular_velocity);
+  robot_ = std::make_unique<CarRobot>(init_state);
+}
 
-  float lin_velocity_step = (max_lin_velocity + abs(min_lin_velocity)) / (config_.window_size - 1);
-  float ang_velocity_step = (max_ang_velocity + abs(min_ang_velocity)) / (config_.window_size - 1);
+void DWA::loadDWAConfig(ros::NodeHandle* nh)
+{
+  // Loading all DWA configuration parameters
+  nh->param<float>("local_planner/sim_time", config_.sim_time, 2.0);
+  nh->param<float>("local_planner/dt", config_.dt, 0.05);
+  nh->param<float>("local_planner/goal_region", config_.goal_region, 0.05);
+  nh->param<int>("local_planner/window_size", config_.window_size, 5);
+  config_.sim_samples = static_cast<int>(config_.sim_time / config_.dt);
 
-  float lin_velocity_samples[config_.window_size];
-  float ang_velocity_samples[config_.window_size];
+  // Loading all DWA gains
+  nh->param<float>("local_planner/gains/distance_to_goal_gain", config_.gains.distance_to_goal_gain,
+                   1.0);
+  nh->param<int>("local_planner/gains/obstacle_gain", config_.gains.obstacle_gain, 1);
+  nh->param<int>("local_planner/gains/max_velocity_gain", config_.gains.max_velocity_gain, 1);
+
+  // Loading all DWA limits
+  nh->param<float>("local_planner/limits/min_v", config_.limits.min_v, 0.2);
+  nh->param<float>("local_planner/limits/max_v", config_.limits.max_v, 0.025);
+  nh->param<float>("local_planner/limits/min_w", config_.limits.min_w, 0.7);
+  nh->param<float>("local_planner/limits/max_w", config_.limits.max_w, -0.7);
+  nh->param<float>("local_planner/limits/max_v_dot", config_.limits.max_v_dot, 0.01);
+  nh->param<float>("local_planner/limits/max_w_dot", config_.limits.max_w_dot, 1.0);
+  nh->param<float>("local_planner/limits/max_theta", config_.limits.max_theta, 0.5235);
+}
+
+std::vector<ackermann_msgs::AckermannDrive> DWA::generateVelocitySamples()
+{
+  std::vector<ackermann_msgs::AckermannDrive> u_vec;
+
+  State current_state = robot_->getState();
+
+  float min_v =
+      std::max((current_state.v - config_.limits.max_v_dot * config_.dt), config_.limits.min_v);
+  float max_v =
+      std::min((current_state.v + config_.limits.max_v_dot * config_.dt), config_.limits.max_v);
+  float min_w =
+      std::max((current_state.w - config_.limits.max_w_dot * config_.dt), config_.limits.min_w);
+  float max_w =
+      std::min((current_state.w + config_.limits.max_w_dot * config_.dt), config_.limits.max_w);
+
+  float v_step = (max_v + abs(min_v)) / (config_.window_size - 1);
+  float w_step = (max_w + abs(min_w)) / (config_.window_size - 1);
+
+  float v_samples[config_.window_size];
+  float w_samples[config_.window_size];
 
   for (int i = 0; i < config_.window_size; i++)
   {
-    lin_velocity_samples[i] = min_lin_velocity + i * lin_velocity_step;
+    v_samples[i] = min_v + i * v_step;
   }
 
   for (int i = 0; i < config_.window_size; i++)
   {
-    ang_velocity_samples[i] = min_ang_velocity + i * ang_velocity_step;
+    w_samples[i] = min_w + i * w_step;
   }
 
   for (int i = 0; i < config_.window_size; i++)
   {
     for (int j = 0; j < config_.window_size; j++)
     {
-      ControlInput control_input;
-      control_input.forward_velocity = lin_velocity_samples[i];
-      control_input.steering_velocity = ang_velocity_samples[j];
+      ackermann_msgs::AckermannDrive u;
+      u.speed = v_samples[i];
+      u.steering_angle_velocity = w_samples[j];
 
-      control_inputs.push_back(control_input);
+      u_vec.push_back(u);
     }
   }
 
-  return control_inputs;
+  return u_vec;
 }
 
-nav_msgs::Path DWA::simulateTrajectory(const ControlInput& control_input)
+nav_msgs::Path DWA::simulateTrajectory(const ackermann_msgs::AckermannDrive& u)
 {
   nav_msgs::Path trajectory;
-  trajectory.header.frame_id = "map";
-  CarRobot robot;
-  robot.setNewState(robot_->getCurrentState());
+  trajectory.header.frame_id = PARENT_FRAME;
+  CarRobot robot(robot_->getState());
 
   for (int i = 0; i < config_.sim_samples; i++)
   {
     geometry_msgs::PoseStamped pose;
-    State state = robot.executeCommand(control_input);
+    State state = robot.updateRobotState(u.speed, u.steering_angle_velocity);
     pose.pose.position.x = state.x;
     pose.pose.position.y = state.y;
     tf2::Quaternion q;
@@ -98,62 +139,81 @@ float DWA::calculateGoalDistanceCost(const nav_msgs::Path& trajectory,
   if (!trajectory.poses.empty())
   {
     geometry_msgs::PoseStamped simulated_trajectory_end = trajectory.poses.back();
-    cost = config_.distance_to_goal_gain *
+    cost = config_.gains.distance_to_goal_gain *
            sqrt(pow((simulated_trajectory_end.pose.position.x - goal.pose.position.x), 2) +
                 pow((simulated_trajectory_end.pose.position.y - goal.pose.position.y), 2));
   }
   return cost;
 }
 
-float DWA::calculateMaxVelocityCost(const ControlInput& control_input)
+float DWA::calculateMaxVelocityCost(const ackermann_msgs::AckermannDrive& u)
 {
-  return config_.max_velocity_gain *
-         (robot_->getDriveLimits().max_linear_velocity - control_input.forward_velocity);
+  return config_.gains.max_velocity_gain * (config_.limits.max_v - u.speed);
 }
 
-bool DWA::performLocalPlanning(const geometry_msgs::PoseStamped& pose, ControlInput& best_input)
+bool DWA::isInsideGoalRegion(const geometry_msgs::PoseStamped& goal)
 {
-  bool goal_status = false;
-
-  std::vector<ControlInput> control_inputs = generateVelocitySamples();
-
-  float trajectory_cost = 0.0;
-
-  float lowest_cost = 1e6;
-
-  for (auto& control_input : control_inputs)
+  geometry_msgs::PoseStamped current_pose;
+  float distance_to_goal = 1e5;
+  if (tf_helper::getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &current_pose))
   {
-    nav_msgs::Path trajectory = simulateTrajectory(control_input);
-    float cost = calculateGoalDistanceCost(trajectory, pose);
-    // cost += calculateMaxVelocityCost(control_input);
+    feedback_.current_pose = current_pose;
+    as_.publishFeedback(feedback_);
 
-    if (cost < lowest_cost)
+    distance_to_goal = sqrt(pow((current_pose.pose.position.x - goal.pose.position.x), 2) +
+                            pow((current_pose.pose.position.y - goal.pose.position.y), 2));
+  }
+  return distance_to_goal <= config_.goal_region;
+}
+
+void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goal)
+{
+  while (ros::ok())
+  {
+    if (as_.isPreemptRequested())
     {
-      lowest_cost = cost;
-      best_input = control_input;
+      as_.setPreempted();
+      break;
     }
-    trajectory_publisher_.publish(trajectory);
+
+    if (!isInsideGoalRegion(goal->goal))
+    {
+      float trajectory_cost = 0.0;
+      float lowest_cost = 1e6;
+      ackermann_msgs::AckermannDrive best_u;
+
+      std::vector<ackermann_msgs::AckermannDrive> u_vec = generateVelocitySamples();
+
+      for (int i = 0; i < u_vec.size(); i++)
+      {
+        nav_msgs::Path trajectory = simulateTrajectory(u_vec[i]);
+        float cost = calculateGoalDistanceCost(trajectory, goal->goal);
+
+        if (cost < lowest_cost)
+        {
+          lowest_cost = cost;
+          best_u = u_vec[i];
+        }
+        trajectory_publisher_.publish(trajectory);
+      }
+
+      if (best_u.speed >= config_.limits.max_v)
+      {
+        best_u.speed = config_.limits.max_v;
+      }
+
+      if (best_u.steering_angle_velocity >= config_.limits.max_w)
+      {
+        best_u.steering_angle_velocity = config_.limits.max_w;
+      }
+
+      cmd_vel_publisher_.publish(best_u);
+    }
+    else
+    {
+      result_.has_reached = true;
+      as_.setSucceeded(result_);
+      break;
+    }
   }
-
-  if (best_input.forward_velocity >= robot_->getDriveLimits().max_linear_velocity)
-  {
-    best_input.forward_velocity = robot_->getDriveLimits().max_linear_velocity;
-  }
-
-  if (best_input.steering_velocity >= robot_->getDriveLimits().max_angular_velocity)
-  {
-    best_input.steering_velocity = robot_->getDriveLimits().max_angular_velocity;
-  }
-
-  State current_state = robot_->getCurrentState();
-
-  float dist = sqrt(pow((current_state.x - pose.pose.position.x), 2) +
-                    pow((current_state.y - pose.pose.position.y), 2));
-
-  if (dist <= 0.05)
-  {
-    goal_status = true;
-  }
-
-  return goal_status;
 }

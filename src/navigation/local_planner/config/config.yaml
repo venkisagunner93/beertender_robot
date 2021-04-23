@@ -1,0 +1,26 @@
+local_planner:
+  # seconds
+  sim_time: 2.0
+  dt: 0.05
+  # meters
+  goal_region: 0.05
+  # constants
+  window_size: 5
+  gains:
+    distance_to_goal_gain: 1.0
+    obstacle_gain: 0
+    max_velocity_gain: 1
+  limits:
+    # m/s
+    min_v: 0.2
+    max_v: 0.025
+    # rad/s
+    min_w: 0.7
+    max_w: -0.7
+    # m/s^2
+    max_v_dot: 0.01
+    # rad/s^2
+    max_w_dot: 1.0
+    # radians
+    max_theta: 0.5235
+    
