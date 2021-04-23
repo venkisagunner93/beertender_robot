@@ -100,6 +100,8 @@ std::vector<ackermann_msgs::AckermannDrive> DWA::generateVelocitySamples()
       u.speed = v_samples[i];
       u.steering_angle_velocity = w_samples[j];
 
+      // ROS_INFO_STREAM(u.speed << "," << u.steering_angle_velocity);
+
       u_vec.push_back(u);
     }
   }
@@ -162,12 +164,15 @@ bool DWA::isInsideGoalRegion(const geometry_msgs::PoseStamped& goal)
 
     distance_to_goal = sqrt(pow((current_pose.pose.position.x - goal.pose.position.x), 2) +
                             pow((current_pose.pose.position.y - goal.pose.position.y), 2));
+    // ROS_INFO_STREAM(distance_to_goal);
   }
   return distance_to_goal <= config_.goal_region;
 }
 
 void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goal)
 {
+  ros::Rate rate(20);
+
   while (ros::ok())
   {
     if (as_.isPreemptRequested())
@@ -208,6 +213,9 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
       }
 
       cmd_vel_publisher_.publish(best_u);
+      
+      State state = robot_->updateRobotState(best_u.speed, best_u.steering_angle_velocity);
+      tf_helper::broadcastCurrentPoseToTF(state.x, state.y, state.theta, PARENT_FRAME, CHILD_FRAME);
     }
     else
     {
@@ -215,5 +223,8 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
       as_.setSucceeded(result_);
       break;
     }
+
+    rate.sleep();
+    ros::spinOnce();
   }
 }

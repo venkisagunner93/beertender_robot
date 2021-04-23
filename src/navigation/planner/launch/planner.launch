@@ -3,4 +3,5 @@
     <rosparam command="load" file="$(find planner)/config/config.yaml"/>
     <include file="$(find global_planner)/launch/global_planner.launch"/>
     <include file="$(find local_planner)/launch/local_planner.launch"/>
+    <node name="planner" type="planner_node" pkg="planner" output="screen"/>
 </launch>

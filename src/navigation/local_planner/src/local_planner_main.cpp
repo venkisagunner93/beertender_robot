@@ -5,7 +5,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "local_planner_node");
   ros::NodeHandle nh;
   DWA dwa(&nh, "dwa_local_plan");
-  ros::Rate rate(10);
+  ros::Rate rate(100);
 
   while (ros::ok())
   {
