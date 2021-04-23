@@ -2,6 +2,7 @@
 geometry_msgs/PointStamped goal
 ---
 #result definition
+bool success
 nav_msgs/Path global_path
 ---
 #feedback definition

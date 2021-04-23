@@ -174,8 +174,6 @@ private:
    * @brief Robot instance
    */
   std::unique_ptr<Robot> robot_;
-
-  std::thread tf_broadcaster_thread_;
   /**
    * @brief Publish all trajectories
    */

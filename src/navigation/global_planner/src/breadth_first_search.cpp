@@ -1,17 +1,18 @@
 #include "global_planner/breadth_first_search.h"
 #include "nav_utils/tf_helper.h"
 
-BFS::BFS(ros::NodeHandle* nh)
+BFS::BFS(ros::NodeHandle* nh, std::string action_name)
+  : as_(*nh, action_name, boost::bind(&BFS::performGlobalPlanning, this, _1), false)
+  , action_name_(action_name)
 {
   initializeSubscribers(nh);
   initializePublishers(nh);
-  global_goal_.header.stamp = ros::Time::now();
-  new_goal_received_ = false;
+
+  as_.start();
 }
 
 void BFS::initializeSubscribers(ros::NodeHandle* nh)
 {
-  global_goal_subscriber_ = nh->subscribe("nav/global_goal", 1, &BFS::globalGoalCallback, this);
   map_subscriber_ = nh->subscribe("map", 1, &BFS::mapCallback, this);
 }
 
@@ -20,31 +21,39 @@ void BFS::initializePublishers(ros::NodeHandle* nh)
   global_path_publisher_ = nh->advertise<nav_msgs::Path>("nav/global_path", 1, true);
 }
 
-void BFS::globalGoalCallback(const geometry_msgs::PointStamped& msg)
-{
-  global_goal_ = msg;
-  new_goal_received_ = true;
-}
-
 void BFS::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg)
 {
   map_.setMap(*msg);
 }
 
-void BFS::runGlobalPlanning()
+void BFS::performGlobalPlanning(const nav_utils::FindGlobalPathGoalConstPtr& goal)
 {
-  if (new_goal_received_)
+  geometry_msgs::PoseStamped start_pose;
+  result_.success = false;
+
+  if (tf_helper::getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &start_pose))
   {
-    new_goal_received_ = false;
     geometry_msgs::PointStamped start_point;
-    geometry_msgs::PoseStamped start_pose;
-    if (tf_helper::getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &start_pose))
+    start_point.header = start_pose.header;
+    start_point.point.x = start_pose.pose.position.x;
+    start_point.point.y = start_pose.pose.position.y;
+
+    result_.global_path = getGlobalPath(start_point, goal->goal);
+
+    // Checking and returning the results back to the client
+    if (!result_.global_path.poses.empty())
     {
-      start_point.header = start_pose.header;
-      start_point.point.x = start_pose.pose.position.x;
-      start_point.point.y = start_pose.pose.position.y;
-      global_path_publisher_.publish(getGlobalPath(start_point, global_goal_));
+      result_.success = true;
+      global_path_publisher_.publish(result_.global_path);
+      as_.setSucceeded();
     }
+  }
+
+  if (!result_.success)
+  {
+    ROS_WARN_STREAM("[BFS]: Requested action failed");
+    ROS_WARN_STREAM("[BFS]: Unable to find a path. Goal may be outside of map or may be an obstacle");
+    as_.setAborted();
   }
 }
 
@@ -56,7 +65,7 @@ nav_msgs::Path BFS::createPath(Node* goal_node)
 
   if (goal_node && goal_node->parent == nullptr)
   {
-    ROS_WARN_STREAM("Unable to find path / path does not exist");
+    ROS_WARN_STREAM("[BFS]: Unable to find path / path does not exist");
   }
   else
   {
@@ -96,10 +105,10 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
 
   Node* start_node = map_.getNodeFromMap(start.point.x, start.point.y);
 
-  ROS_INFO_STREAM("Start: [" << start_node->x << "," << start_node->y << " => " << goal_node->x
+  ROS_INFO_STREAM("[BFS]: Start: [" << start_node->x << "," << start_node->y << " => " << goal_node->x
                              << "," << goal_node->y << "] (in pixels)");
 
-  ROS_INFO_STREAM("Start: [" << start.point.x << "," << start.point.y << " => " << goal.point.x
+  ROS_INFO_STREAM("[BFS]: Start: [" << start.point.x << "," << start.point.y << " => " << goal.point.x
                              << "," << goal.point.y << "] (in meters)");
 
   graph[start_node->x][start_node->y]->is_visited = true;
@@ -143,14 +152,14 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
     }
   }
 
-  ROS_DEBUG_STREAM("Search completed: final node => (" << last_node->x << "," << last_node->y
+  ROS_DEBUG_STREAM("[BFS]: Search completed: final node => (" << last_node->x << "," << last_node->y
                                                        << ")");
 
   // Step-3: From goal node, traverse back to start node and create path with
   // vector of poses
   global_path = createPath(goal_node);
 
-  ROS_DEBUG_STREAM("Valid global path found");
+  ROS_DEBUG_STREAM("[BFS]: Valid global path found");
 
   // Step-4 Reset graph for creating another path
   map_.resetGraph();
@@ -205,7 +214,7 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
     downsampled_global_path.poses.push_back(global_path.poses[global_path.poses.size() - 1]);
   }
 
-  ROS_DEBUG_STREAM("Downsampling complete");
+  ROS_DEBUG_STREAM("[BFS]: Downsampling complete");
 
   return downsampled_global_path;
 }

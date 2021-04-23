@@ -14,8 +14,10 @@
 #include <ros/ros.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <actionlib/server/simple_action_server.h>
 #include "global_planner/global_planner.h"
 #include "nav_utils/map.h"
+#include "nav_utils/FindGlobalPathAction.h"
 
 #define PARENT_FRAME "map"
 #define CHILD_FRAME "base_link"
@@ -28,18 +30,21 @@ class BFS : public GlobalPlanner
 public:
   /**
    * @brief Construct a new BFS object
+   * @param nh ROS Nodehandle for communication
+   * @param action_name Global planning action name
    */
-  BFS(ros::NodeHandle* nh);
+  BFS(ros::NodeHandle* nh, std::string action_name);
   /**
    * @brief Destroy the BFS object
    */
   ~BFS() {}
-  /**
-   * @brief A method to run global planning
-   */
-  void runGlobalPlanning();
 
 private:
+  /**
+   * @brief A method to run global planning
+   * @param goal Global goal
+   */
+  void performGlobalPlanning(const nav_utils::FindGlobalPathGoalConstPtr& goal);
   /**
    * @brief A method to initialize ROS subscribers
    * @param nh ROS Nodehandle for communication
@@ -50,11 +55,6 @@ private:
    * @param nh ROS Nodehandle for communication
    */
   void initializePublishers(ros::NodeHandle* nh);
-  /**
-   * @brief A subscriber callback for global goal
-   * @param msg Global goal message
-   */
-  void globalGoalCallback(const geometry_msgs::PointStamped& msg);
   /**
    * @brief A subscriber callback for global map
    * @param msg Global map
@@ -75,17 +75,9 @@ private:
    */
   nav_msgs::Path createPath(Node* goal_node);
   /**
-   * @brief Is new goal received
-   */
-  bool new_goal_received_;
-  /**
    * @brief Map instance for global planning
    */
   Map map_;
-  /**
-   * @brief ROS subscriber for getting global goal
-   */
-  ros::Subscriber global_goal_subscriber_;
   /**
    * @brief ROS subscriber for getting map
    */
@@ -98,6 +90,22 @@ private:
    * @brief Global goal message
    */
   geometry_msgs::PointStamped global_goal_;
+  /**
+   * @brief Global planner action server
+   */
+  actionlib::SimpleActionServer<nav_utils::FindGlobalPathAction> as_;
+  /**
+   * @brief Action name
+   */
+  std::string action_name_;
+  /**
+   * @brief Action server feedback
+   */
+  nav_utils::FindGlobalPathFeedback feedback_;
+  /**
+   * @brief Action server result
+   */
+  nav_utils::FindGlobalPathResult result_;
 };
 
 #endif  // BREADTH_FIRST_SEARCH_H

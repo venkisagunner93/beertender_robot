@@ -34,10 +34,6 @@ public:
    */
   virtual nav_msgs::Path getGlobalPath(const geometry_msgs::PointStamped& start,
                                        const geometry_msgs::PointStamped& goal) = 0;
-  /**
-   * @brief A pure virtual function for running global planning
-   */
-  virtual void runGlobalPlanning() = 0;
 };
 
 #endif  // GLOBAL_PLANNER_H
