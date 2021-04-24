@@ -17,11 +17,12 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <ackermann_msgs/AckermannDrive.h>
 #include <actionlib/server/simple_action_server.h>
-#include <thread>
+#include <dynamic_reconfigure/server.h>
 #include "local_planner/local_planner.h"
 #include "robot/car_robot.h"
 #include "nav_utils/ReachGlobalPoseAction.h"
 #include "nav_utils/tf_helper.h"
+#include "local_planner/DWAConfig.h"
 
 #define PARENT_FRAME "map"
 #define CHILD_FRAME "base_link"
@@ -84,6 +85,7 @@ struct DWAConfig
   float goal_region; /*< Goal region */
   int sim_samples;   /*< Total sim samples */
   int window_size;   /*< Window size */
+  int loop_rate;     /*< Loop rate */
   /**
    * @brief Construct a new DWAConfig object
    */
@@ -94,6 +96,7 @@ struct DWAConfig
     goal_region = 0.0;
     sim_samples = 0;
     window_size = 0;
+    loop_rate = 0;
   }
 };
 
@@ -117,8 +120,6 @@ public:
    * @brief A method to update robot's current pose
    */
   void broadcastCurrentPose();
-
-private:
   /**
    * @brief A method to generate velocity samples
    * @return std::vector<ControlInput>
@@ -162,11 +163,6 @@ private:
    */
   bool isInsideGoalRegion(const geometry_msgs::PoseStamped& goal);
   /**
-   * @brief A method to perform local planning for the robot
-   * @param goal Goal to reach
-   */
-  void performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goal);
-  /**
    * @brief DWA configuration parameters
    */
   DWAConfig config_;
@@ -174,6 +170,24 @@ private:
    * @brief Robot instance
    */
   std::unique_ptr<Robot> robot_;
+
+private:
+  /**
+   * @brief A method to perform local planning for the robot
+   * @param goal Goal to reach
+   */
+  void performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goal);
+  /**
+   * @brief A method to update robot state and publish velocity
+   * @param msg Best setpoint
+   */
+  void updateAndPublish(const ackermann_msgs::AckermannDrive& msg);
+  /**
+   * @brief A dynamic reconfigure callback
+   * @param config
+   * @param level
+   */
+  void reconfigCallback(local_planner::DWAConfig& config, uint32_t level);
   /**
    * @brief Publish all trajectories
    */
@@ -198,6 +212,22 @@ private:
    * @brief Action server result
    */
   nav_utils::ReachGlobalPoseResult result_;
+  /**
+   * @brief Zero velocity setpoint
+   */
+  ackermann_msgs::AckermannDrive zero_u_;
+  /**
+   * @brief Dynamic reconfigure server
+   */
+  boost::shared_ptr<dynamic_reconfigure::Server<local_planner::DWAConfig>> reconfig_server_;
+  /**
+   * @brief Mutex for dynamic reconfigure
+   */
+  boost::recursive_mutex dr_mutex_;
+  /**
+   * @brief TF helper instance
+   */
+  tf_helper::TFHelper tf_helper_;
 };
 
 #endif  // DYNAMIC_WINDOW_APPROACH_H

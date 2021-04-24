@@ -18,6 +18,7 @@
 #include "global_planner/global_planner.h"
 #include "nav_utils/map.h"
 #include "nav_utils/FindGlobalPathAction.h"
+#include "nav_utils/tf_helper.h"
 
 #define PARENT_FRAME "map"
 #define CHILD_FRAME "base_link"
@@ -106,6 +107,10 @@ private:
    * @brief Action server result
    */
   nav_utils::FindGlobalPathResult result_;
+  /**
+   * @brief TF helper instance
+   */
+  tf_helper::TFHelper tf_helper_;
 };
 
 #endif  // BREADTH_FIRST_SEARCH_H

@@ -2,18 +2,18 @@
 
 namespace tf_helper
 {
-bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
-                              geometry_msgs::PoseStamped* pose)
-{
-  tf2_ros::Buffer tf_buffer;
-  tf2_ros::TransformListener tf_listener(tf_buffer);
+TFHelper::TFHelper() : tf_listener_(tf_buffer_) {}
 
+bool TFHelper::getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
+                                    geometry_msgs::PoseStamped* pose)
+{
   geometry_msgs::TransformStamped tf_pose;
 
   try
   {
     // Max wait time for transform will be 5s
-    tf_pose = tf_buffer.lookupTransform(parent_frame, child_frame, ros::Time(0), ros::Duration(5.0));
+    tf_pose =
+        tf_buffer_.lookupTransform(parent_frame, child_frame, ros::Time(0), ros::Duration(0.5));
   }
   catch (tf2::TransformException& ex)
   {
@@ -34,8 +34,8 @@ bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
   return true;
 }
 
-void broadcastCurrentPoseToTF(float x, float y, float theta, std::string parent_frame,
-                              std::string child_frame)
+void TFHelper::broadcastCurrentPoseToTF(float x, float y, float theta, std::string parent_frame,
+                                        std::string child_frame)
 {
   static tf2_ros::TransformBroadcaster broadcaster;
   geometry_msgs::TransformStamped pose;

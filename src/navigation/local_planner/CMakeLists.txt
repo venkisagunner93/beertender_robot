@@ -3,10 +3,15 @@ project(local_planner)
 
 find_package(catkin REQUIRED COMPONENTS
   ackermann_msgs
+  dynamic_reconfigure
   roscpp
   tf2_ros
   robot
   nav_utils
+)
+
+generate_dynamic_reconfigure_options(
+  config/DWA.cfg
 )
 
 ###################################
@@ -31,11 +36,15 @@ add_library(${PROJECT_NAME}_lib
   src/dynamic_window_approach.cpp)
 
 target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
-add_dependencies(${PROJECT_NAME}_lib nav_utils_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_lib nav_utils_generate_messages_cpp ${PROJECT_NAME}_gencfg)
 
 add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_main.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME}_lib ${catkin_LIBRARIES})
-add_dependencies(${PROJECT_NAME}_node nav_utils_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_node nav_utils_generate_messages_cpp ${PROJECT_NAME}_gencfg)
+
+find_package(rostest REQUIRED)
+add_rostest_gtest(dwa_test launch/local_planner_rostest.test test/dwa_test.cpp)
+target_link_libraries(dwa_test ${PROJECT_NAME}_lib ${catkin_LIBRARIES})
 
 #############
 ## Install ##

@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <test pkg="local_planner" test-name="dwa_tests" type="dwa_test" />
+</launch>

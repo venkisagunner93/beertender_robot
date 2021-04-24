@@ -1,5 +1,4 @@
 #include "global_planner/breadth_first_search.h"
-#include "nav_utils/tf_helper.h"
 
 BFS::BFS(ros::NodeHandle* nh, std::string action_name)
   : as_(*nh, action_name, boost::bind(&BFS::performGlobalPlanning, this, _1), false)
@@ -37,7 +36,7 @@ void BFS::performGlobalPlanning(const nav_utils::FindGlobalPathGoalConstPtr& goa
     return;
   }
 
-  if (tf_helper::getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &start_pose))
+  if (tf_helper_.getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &start_pose))
   {
     geometry_msgs::PointStamped start_point;
     start_point.header = start_pose.header;

@@ -15,7 +15,7 @@ void Planner::globalGoalCallback(const geometry_msgs::PointStampedConstPtr& msg)
   for (auto& pose : global_path.poses)
   {
     callDWAActionServer(pose);
-		// ROS_INFO_STREAM(pose.pose.position.x << "," << pose.pose.position.y);
+    // ROS_INFO_STREAM(pose.pose.position.x << "," << pose.pose.position.y);
   }
 }
 
@@ -41,7 +41,8 @@ nav_msgs::Path Planner::callBFSActionServer(const geometry_msgs::PointStampedCon
       }
       else
       {
-        ROS_WARN_STREAM("[Planner]: Requested global goal cannot be achieved. Try a new global goal");
+        ROS_WARN_STREAM(
+            "[Planner]: Requested global goal cannot be achieved. Try a new global goal");
       }
     }
   }
@@ -54,7 +55,7 @@ void Planner::callDWAActionServer(const geometry_msgs::PoseStamped& pose)
   if (dwa_ac_.waitForServer(ros::Duration(2.0)))
   {
     nav_utils::ReachGlobalPoseGoal goal;
-		goal.goal = pose;
+    goal.goal = pose;
 
     dwa_ac_.sendGoal(goal);
 
@@ -62,11 +63,16 @@ void Planner::callDWAActionServer(const geometry_msgs::PoseStamped& pose)
     {
       nav_utils::ReachGlobalPoseResultConstPtr result = dwa_ac_.getResult();
 
-			if(result->has_reached)
-			{
-				ROS_INFO_STREAM("[Planner]: Reached local goal");
-			}
-		}
+      if (result->has_reached)
+      {
+        ROS_INFO_STREAM("[Planner]: Reached local goal");
+      }
+    }
+    else
+    {
+      ROS_WARN_STREAM("[Planner]: Timed out");
+      dwa_ac_.cancelGoal();
+    }
   }
 }
 
