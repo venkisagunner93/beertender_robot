@@ -10,15 +10,12 @@
 #ifndef PLANNER_H
 #define PLANNER_H
 
-#include <queue>
-#include <thread>
 #include <ros/ros.h>
-#include <stack>
-#include <nav_msgs/OccupancyGrid.h>
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
 #include <geometry_msgs/PointStamped.h>
-#include <tf2_ros/transform_listener.h>
-#include "nav_utils/map.h"
-#include "robot/car_robot.h"
+#include "nav_utils/FindGlobalPathAction.h"
+#include "nav_utils/ReachGlobalPoseAction.h"
 
 /**
  * @brief A class for orchestrating planning and navigation
@@ -28,9 +25,9 @@ class Planner
 public:
   /**
    * @brief Construct a new Planner object
-   * @param nh - ROS NodeHandle for communication
+   * @param nh ROS NodeHandle for communication
    */
-  Planner(ros::NodeHandle& nh);
+  Planner(ros::NodeHandle* nh);
   /**
    * @brief Destroy the Planner object
    */
@@ -42,13 +39,33 @@ public:
 
 private:
   /**
-   * @brief Transform buffer
+   * @brief A subscriber callback for global goal
+   * @param msg Global goal
    */
-  tf2_ros::Buffer buffer_;
+  void globalGoalCallback(const geometry_msgs::PointStampedConstPtr& msg);
   /**
-   * @brief Transform listener
+   * @brief A method to call BFS action server
+   * @param msg Global goal
+   * @return nav_msgs::Path 
    */
-  tf2_ros::TransformListener listener_;
+  nav_msgs::Path callBFSActionServer(const geometry_msgs::PointStampedConstPtr& msg);
+  /**
+   * @brief A method to call DWA action server
+   * @param pose Local goal
+   */
+  void callDWAActionServer(const geometry_msgs::PoseStamped& pose);
+  /**
+   * @brief Global goal subscriber
+   */
+  ros::Subscriber global_goal_subscriber_;
+  /**
+   * @brief Action client for global planner
+   */
+  actionlib::SimpleActionClient<nav_utils::FindGlobalPathAction> bfs_ac_;
+  /**
+   * @brief Action client for local planner
+   */
+  actionlib::SimpleActionClient<nav_utils::ReachGlobalPoseAction> dwa_ac_;
 };
 
 #endif  // PLANNER_H

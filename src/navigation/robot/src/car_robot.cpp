@@ -34,15 +34,7 @@ State CarRobot::updateRobotState(const float& v, const float& w)
   ros::Duration dt = ros::Time::now() - prev_time_;
   prev_time_ = ros::Time::now();
 
-  state_.theta = w * dt.toSec() + state_.theta;
-
-  state_.x = v * dt.toSec() * cos(state_.theta) + state_.x;
-  state_.y = v * dt.toSec() * sin(state_.theta) + state_.y;
-
-  state_.v = v;
-  state_.w = w;
-
-  return state_;
+  return updateRobotState(v, w, dt.toSec());
 }
 
 State CarRobot::updateRobotState(const float& v, const float& w, const float& dt)

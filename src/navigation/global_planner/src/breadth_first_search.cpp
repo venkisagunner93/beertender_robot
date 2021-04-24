@@ -1,5 +1,4 @@
 #include "global_planner/breadth_first_search.h"
-#include "nav_utils/tf_helper.h"
 
 BFS::BFS(ros::NodeHandle* nh, std::string action_name)
   : as_(*nh, action_name, boost::bind(&BFS::performGlobalPlanning, this, _1), false)
@@ -31,7 +30,13 @@ void BFS::performGlobalPlanning(const nav_utils::FindGlobalPathGoalConstPtr& goa
   geometry_msgs::PoseStamped start_pose;
   result_.success = false;
 
-  if (tf_helper::getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &start_pose))
+  if (as_.isPreemptRequested())
+  {
+    as_.setPreempted();
+    return;
+  }
+
+  if (tf_helper_.getCurrentPoseFromTF(PARENT_FRAME, CHILD_FRAME, &start_pose))
   {
     geometry_msgs::PointStamped start_point;
     start_point.header = start_pose.header;
@@ -45,15 +50,16 @@ void BFS::performGlobalPlanning(const nav_utils::FindGlobalPathGoalConstPtr& goa
     {
       result_.success = true;
       global_path_publisher_.publish(result_.global_path);
-      as_.setSucceeded();
+      as_.setSucceeded(result_);
     }
   }
 
   if (!result_.success)
   {
     ROS_WARN_STREAM("[BFS]: Requested action failed");
-    ROS_WARN_STREAM("[BFS]: Unable to find a path. Goal may be outside of map or may be an obstacle");
-    as_.setAborted();
+    ROS_WARN_STREAM(
+        "[BFS]: Unable to find a path. Goal may be outside of map or may be an obstacle");
+    as_.setAborted(result_, "Action failed. Aborting");
   }
 }
 
@@ -105,11 +111,11 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
 
   Node* start_node = map_.getNodeFromMap(start.point.x, start.point.y);
 
-  ROS_INFO_STREAM("[BFS]: Start: [" << start_node->x << "," << start_node->y << " => " << goal_node->x
-                             << "," << goal_node->y << "] (in pixels)");
+  ROS_INFO_STREAM("[BFS]: Start: [" << start_node->x << "," << start_node->y << " => "
+                                    << goal_node->x << "," << goal_node->y << "] (in pixels)");
 
-  ROS_INFO_STREAM("[BFS]: Start: [" << start.point.x << "," << start.point.y << " => " << goal.point.x
-                             << "," << goal.point.y << "] (in meters)");
+  ROS_INFO_STREAM("[BFS]: Start: [" << start.point.x << "," << start.point.y << " => "
+                                    << goal.point.x << "," << goal.point.y << "] (in meters)");
 
   graph[start_node->x][start_node->y]->is_visited = true;
   search_list.push(graph[start_node->x][start_node->y]);
@@ -153,7 +159,7 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
   }
 
   ROS_DEBUG_STREAM("[BFS]: Search completed: final node => (" << last_node->x << "," << last_node->y
-                                                       << ")");
+                                                              << ")");
 
   // Step-3: From goal node, traverse back to start node and create path with
   // vector of poses
@@ -212,6 +218,11 @@ nav_msgs::Path BFS::getGlobalPath(const geometry_msgs::PointStamped& start,
       }
     }
     downsampled_global_path.poses.push_back(global_path.poses[global_path.poses.size() - 1]);
+  }
+
+  if (!downsampled_global_path.poses.empty())
+  {
+    std::reverse(downsampled_global_path.poses.begin(), downsampled_global_path.poses.end());
   }
 
   ROS_DEBUG_STREAM("[BFS]: Downsampling complete");

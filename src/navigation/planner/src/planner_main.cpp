@@ -5,20 +5,15 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "planner");
   ros::NodeHandle nh;
 
-  Planner planner(nh);
+  Planner planner(&nh);
 
-  if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
-  {
-    ros::console::notifyLoggerLevelsChanged();
-  }
-
-  ros::Rate rate(10);
+  ros::Rate rate(100);
 
   while (ros::ok())
   {
     planner.run();
-    rate.sleep();
     ros::spinOnce();
+    rate.sleep();
   }
   return 0;
 }

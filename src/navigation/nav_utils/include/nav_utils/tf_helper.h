@@ -19,25 +19,50 @@
 namespace tf_helper
 {
 /**
- * @brief Get the Current Location From TF tree
- * @param parent_frame Parent frame in TF tree
- * @param child_frame Child frame in TF tree
- * @param pose Current pose
- * @return true
- * @return false
+ * @brief A helper class for accessing transform tree
  */
-bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
-                          geometry_msgs::PoseStamped* pose);
-/**
- * @brief Broadcast current pose to TF tree
- * @param x State x
- * @param y State y
- * @param theta State theta
- * @param parent_frame Parent frame in TF tree
- * @param child_frame Child frame in TF tree
- */
-void broadcastCurrentPoseToTF(float x, float y, float theta, std::string parent_frame,
-                              std::string child_frame);
+class TFHelper
+{
+public:
+	/**
+	 * @brief Construct a new TFHelper object
+	 */
+	TFHelper();
+	/**
+	 * @brief Destroy the TFHelper object
+	 */
+	~TFHelper(){}
+  /**
+   * @brief Get the Current Location From TF tree
+   * @param parent_frame Parent frame in TF tree
+   * @param child_frame Child frame in TF tree
+   * @param pose Current pose
+   * @return true
+   * @return false
+   */
+  bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
+                            geometry_msgs::PoseStamped* pose);
+  /**
+   * @brief Broadcast current pose to TF tree
+   * @param x State x
+   * @param y State y
+   * @param theta State theta
+   * @param parent_frame Parent frame in TF tree
+   * @param child_frame Child frame in TF tree
+   */
+  void broadcastCurrentPoseToTF(float x, float y, float theta, std::string parent_frame,
+                                std::string child_frame);
+
+private:
+	/**
+	 * @brief TF buffer
+	 */
+  tf2_ros::Buffer tf_buffer_;
+	/**
+	 * @brief TF listener instance
+	 */
+  tf2_ros::TransformListener tf_listener_;
+};
 }  // namespace tf_helper
 
 #endif  // TF_HELPER_H
