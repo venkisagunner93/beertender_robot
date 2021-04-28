@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+    <rosparam command="load" file="$(find robot_sim)/config/config.yaml"/>
+    <node name="robot_sim" type="robot_sim_node" pkg="robot_sim" output="screen"/>
+</launch>

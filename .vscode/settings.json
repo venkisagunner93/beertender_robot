@@ -67,7 +67,9 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "codecvt": "cpp",
+        "future": "cpp"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/src",
     "cmake.configureOnOpen": false,
