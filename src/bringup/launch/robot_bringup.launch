@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <launch>
+    <arg name="sim" default="false"/>
+
     <param name="robot" command="cat $(find robot)/urdf/car_robot.urdf"/>
     <param name="robot_estimate" command="cat $(find robot)/urdf/car_robot_estimate.urdf"/>
 
@@ -8,4 +10,7 @@
 
     <!-- Planning stack -->
     <include file="$(find planner)/launch/planner.launch"/>
+
+    <!-- Sim stack -->
+    <include file="$(find robot_sim)/launch/robot_sim.launch" if="$(arg sim)"/>
 </launch>
