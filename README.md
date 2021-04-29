@@ -31,11 +31,13 @@ TO-DO:
         - [ ] Bag files
         - [ ] Metrics
 
-## Package structure
-
-Coming soon
-
 ## How to run?
+
+Prerequisites (install once)
+```sh
+sudo apt-get update
+sudo apt-get install ros-${ROS_DISTRO}-map-server ros-${ROS_DISTRO}-ackermann-msgs ros-${ROS_DISTRO}-joy
+```
 
 ```sh
 cd $HOME
@@ -43,9 +45,16 @@ git clone https://github.com/venkisagunner93/beertender_robot.git
 cd beertender_robot
 catkin_make
 source devel/setup.bash
-roslaunch bringup robot_bringup.launch
+```
+For simulation:
+```
+roslaunch bringup robot_bringup.launch sim:=true
 ```
 
 Output looks like the following:
 
 ![rviz](.images/rviz.png)
+
+## ROS Graph
+
+![ros_graph](.images/ros_graph.png)
