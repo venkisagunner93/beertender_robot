@@ -4,6 +4,8 @@ DWA::DWA(ros::NodeHandle* nh, std::string action_name)
   : as_(*nh, action_name, boost::bind(&DWA::performLocalPlanning, this, _1), false)
   , action_name_(action_name)
 {
+  is_joystick_active_ = false;
+  joy_subscriber_ = nh->subscribe("joy", 1, &DWA::joyCallback, this);
   trajectory_publisher_ = nh->advertise<nav_msgs::Path>("nav/local_trajectory", 1);
   cmd_vel_publisher_ = nh->advertise<ackermann_msgs::AckermannDrive>("cmd_vel", 1);
 
@@ -24,10 +26,33 @@ DWA::DWA(ros::NodeHandle* nh, std::string action_name)
 
 void DWA::broadcastCurrentPose()
 {
+  if (is_joystick_active_)
+  {
+    float y = joy_.axes[0];
+    float x = joy_.axes[1];
+
+    int turbo = joy_.buttons[7];
+
+    ackermann_msgs::AckermannDrive u;
+    u.speed = x * (0.2 + turbo * 0.5);
+    u.steering_angle_velocity = y * (0.2 + turbo * 0.4);
+    updateAndPublish(u);
+  }
+
   State state = robot_->getState();
 
   // Broadcasting initial state of the robot
   tf_helper_.broadcastCurrentPoseToTF(state.x, state.y, state.theta, PARENT_FRAME, CHILD_FRAME);
+}
+
+void DWA::joyCallback(const sensor_msgs::JoyConstPtr& msg)
+{
+  {
+    std::lock_guard<std::mutex> lock(joy_mutex_);
+    is_joystick_active_ = true;
+  }
+
+  joy_ = *msg;
 }
 
 void DWA::loadInitState(ros::NodeHandle* nh)
@@ -199,6 +224,16 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
 
   while (ros::ok())
   {
+    {
+      std::lock_guard<std::mutex> lock(joy_mutex_);
+      if (is_joystick_active_)
+      {
+        is_joystick_active_ = false;
+        as_.setAborted(result_);
+        return;
+      }
+    }
+
     if (as_.isPreemptRequested())
     {
       break;

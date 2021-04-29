@@ -1,12 +1,27 @@
 #include "nav_utils/map.h"
 
-void Map::setMap(const nav_msgs::OccupancyGrid& map)
+Map::Map(ros::NodeHandle* nh)
 {
-  map_ = map;
-  width_ = map_.info.width;
-  height_ = map_.info.height;
-  resolution_ = map_.info.resolution;
-  createGraphFromMap();
+  get_map_client_ = nh->serviceClient<nav_msgs::GetMap>("static_map");
+
+  nav_msgs::GetMap get_map_srv;
+
+  if (get_map_client_.waitForExistence(ros::Duration(5.0)))
+  {
+    if (get_map_client_.call(get_map_srv))
+    {
+      map_ = get_map_srv.response.map;
+      width_ = map_.info.width;
+      height_ = map_.info.height;
+      resolution_ = map_.info.resolution;
+      createGraphFromMap();
+      ROS_INFO_STREAM("[Map]: Global map constructed successfully");
+    }
+  }
+  else
+  {
+    ROS_WARN_STREAM("[Map]: Timed out. 'static_map' server not available");
+  }
 }
 
 int Map::getWidthInPixels() const
@@ -72,7 +87,14 @@ void Map::createGraphFromMap()
 
 Node* Map::getNodeFromMap(const float& x, const float& y)
 {
-  return graph_[static_cast<int>(x / resolution_)][static_cast<int>(y / resolution_)];
+  if (x < 0.0 || y < 0.0 || x > getWidthInMeters() || y > getHeightInMeters())
+  {
+    return nullptr;
+  }
+  else
+  {
+    return graph_[static_cast<int>(x / resolution_)][static_cast<int>(y / resolution_)];
+  }
 }
 
 std::vector<std::vector<Node*>> Map::getGraph() const

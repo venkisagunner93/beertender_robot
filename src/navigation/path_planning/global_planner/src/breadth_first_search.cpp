@@ -3,6 +3,7 @@
 BFS::BFS(ros::NodeHandle* nh, std::string action_name)
   : as_(*nh, action_name, boost::bind(&BFS::performGlobalPlanning, this, _1), false)
   , action_name_(action_name)
+  , map_(nh)
 {
   initializeSubscribers(nh);
   initializePublishers(nh);
@@ -10,19 +11,11 @@ BFS::BFS(ros::NodeHandle* nh, std::string action_name)
   as_.start();
 }
 
-void BFS::initializeSubscribers(ros::NodeHandle* nh)
-{
-  map_subscriber_ = nh->subscribe("map", 1, &BFS::mapCallback, this);
-}
+void BFS::initializeSubscribers(ros::NodeHandle* nh) {}
 
 void BFS::initializePublishers(ros::NodeHandle* nh)
 {
   global_path_publisher_ = nh->advertise<nav_msgs::Path>("nav/global_path", 1, true);
-}
-
-void BFS::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg)
-{
-  map_.setMap(*msg);
 }
 
 void BFS::performGlobalPlanning(const nav_utils::FindGlobalPathGoalConstPtr& goal)

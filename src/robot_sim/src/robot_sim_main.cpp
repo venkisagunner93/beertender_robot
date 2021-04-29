@@ -6,10 +6,11 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   RobotSim robot_sim(&nh);
 
-  ros::Rate rate(100);
+  ros::Rate rate(10);
   while (ros::ok())
   {
 		robot_sim.publishIndividualWheelVelocity();
+		robot_sim.publishLaserScan();
 		rate.sleep();
 		ros::spinOnce();
   }

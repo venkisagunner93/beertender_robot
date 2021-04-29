@@ -11,9 +11,13 @@
 #define ROBOT_SIM_H
 
 #include <ros/ros.h>
+#include <tf/LinearMath/Matrix3x3.h>
 #include <ackermann_msgs/AckermannDrive.h>
 #include <sensor_msgs/JointState.h>
+#include <sensor_msgs/LaserScan.h>
 #include <random>
+#include "nav_utils/tf_helper.h"
+#include "nav_utils/map.h"
 
 static const float AXLE_LENGTH = 0.235;
 
@@ -22,13 +26,15 @@ static const float AXLE_LENGTH = 0.235;
  */
 struct Noise
 {
-  float variance; /*< Measurement error variance */
+  float odom_variance;  /*< Odometry measurement error variance */
+  float laser_variance; /*< Laser measurement error variance */
   /**
    * @brief Construct a new Noise object
    */
   Noise()
   {
-    variance = 0.0;
+    odom_variance = 0.0;
+    laser_variance = 0.0;
   }
 };
 
@@ -62,6 +68,10 @@ public:
    * @brief A method to publish velocities in wheel frame from robot frame
    */
   void publishIndividualWheelVelocity();
+  /**
+   * @brief A method to publish laser scan
+   */
+  void publishLaserScan();
 
 private:
   /**
@@ -83,6 +93,10 @@ private:
    */
   ros::Publisher wheel_vel_publisher_;
   /**
+   * @brief ROS publisher for laser scans
+   */
+  ros::Publisher laser_scan_publisher_;
+  /**
    * @brief Current control input from planner
    */
   ackermann_msgs::AckermannDrive current_u_;
@@ -94,6 +108,14 @@ private:
    * @brief Noise generator
    */
   std::default_random_engine generator_;
+  /**
+   * @brief Transform tree helper
+   */
+  tf_helper::TFHelper tf_helper_;
+  /**
+   * @brief Map instance
+   */
+  Map map_;
 };
 
 #endif  // ROBOT_SIM_H

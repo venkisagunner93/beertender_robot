@@ -11,7 +11,9 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <ros/ros.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/GetMap.h>
 
 /**
  * @brief A structure for graph node
@@ -43,10 +45,10 @@ class Map
 {
 public:
   /**
-   * @brief A method to set map obtained from Map server
-   * @param map Map instance
+   * @brief Construct a new Map object
+   * @param nh ROS Nodehandle for communication
    */
-  void setMap(const nav_msgs::OccupancyGrid& map);
+  Map(ros::NodeHandle* nh);
   /**
    * @brief Get the Width In Pixels object
    * @return int
@@ -95,6 +97,11 @@ public:
 
 private:
   /**
+   * @brief A subscriber callback for global map
+   * @param msg Occupancy grid message
+   */
+  void mapCallback(const nav_msgs::OccupancyGrid& msg);
+  /**
    * @brief Create a Graph From Map object
    */
   void createGraphFromMap();
@@ -118,6 +125,10 @@ private:
    * @brief 2D graph datastructure
    */
   std::vector<std::vector<Node*>> graph_;
+  /**
+   * @brief Global map client
+   */
+  ros::ServiceClient get_map_client_;
 };
 
 #endif  // MAP_H

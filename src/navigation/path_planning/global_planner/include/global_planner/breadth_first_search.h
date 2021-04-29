@@ -57,11 +57,6 @@ private:
    */
   void initializePublishers(ros::NodeHandle* nh);
   /**
-   * @brief A subscriber callback for global map
-   * @param msg Global map
-   */
-  void mapCallback(const nav_msgs::OccupancyGridConstPtr& msg);
-  /**
    * @brief Get the Path object
    * @param start - Start co-ordinate
    * @param goal - Goal co-ordinate
@@ -79,10 +74,6 @@ private:
    * @brief Map instance for global planning
    */
   Map map_;
-  /**
-   * @brief ROS subscriber for getting map
-   */
-  ros::Subscriber map_subscriber_;
   /**
    * @brief ROS publisher for global path
    */
