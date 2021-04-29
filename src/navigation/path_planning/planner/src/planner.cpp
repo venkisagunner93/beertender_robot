@@ -67,6 +67,10 @@ void Planner::callDWAActionServer(const geometry_msgs::PoseStamped& pose)
       {
         ROS_INFO_STREAM("[Planner]: Reached local goal");
       }
+      else
+      {
+        ROS_INFO_STREAM("[Planner]: Goal aborted");
+      }
     }
     else
     {

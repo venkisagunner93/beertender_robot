@@ -16,6 +16,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <ackermann_msgs/AckermannDrive.h>
+#include <sensor_msgs/Joy.h>
 #include <actionlib/server/simple_action_server.h>
 #include <dynamic_reconfigure/server.h>
 #include "local_planner/local_planner.h"
@@ -189,6 +190,11 @@ private:
    */
   void reconfigCallback(local_planner::DWAConfig& config, uint32_t level);
   /**
+   * @brief A subscriber callback for joystick msgs
+   * @param msg Joy msgs
+   */
+  void joyCallback(const sensor_msgs::JoyConstPtr& msg);
+  /**
    * @brief Publish all trajectories
    */
   ros::Publisher trajectory_publisher_;
@@ -216,6 +222,22 @@ private:
    * @brief Zero velocity setpoint
    */
   ackermann_msgs::AckermannDrive zero_u_;
+  /**
+   * @brief ROS subscriber for joystick msgs
+   */
+  ros::Subscriber joy_subscriber_;
+  /**
+   * @brief Mutex to handle joy state
+   */
+  std::mutex joy_mutex_;
+  /**
+   * @brief Is joystick active flag
+   */
+  bool is_joystick_active_;
+  /**
+   * @brief Joystick message
+   */
+  sensor_msgs::Joy joy_;
   /**
    * @brief Dynamic reconfigure server
    */
