@@ -1,7 +1,9 @@
 #include "robot_sim/robot_sim.h"
 
 RobotSim::RobotSim(ros::NodeHandle* nh)
-  : map_(nh), generator_(std::chrono::system_clock::now().time_since_epoch().count())
+  : map_(nh)
+  , generator_(std::chrono::system_clock::now().time_since_epoch().count())
+  , odom_robot_(State())
 {
   cmd_vel_subscriber_ = nh->subscribe("cmd_vel", 1, &RobotSim::cmdVelCallback, this);
   wheel_vel_publisher_ = nh->advertise<sensor_msgs::JointState>("joint_state", 1);
@@ -9,6 +11,28 @@ RobotSim::RobotSim(ros::NodeHandle* nh)
 
   current_u_.speed = 0.0;
   current_u_.steering_angle_velocity = 0.0;
+
+  geometry_msgs::PoseStamped pose;
+
+  if (tf_helper_.getCurrentPoseFromTF("map", "base_link", &pose))
+  {
+    State state;
+    tf::Quaternion q;
+    q.setX(pose.pose.orientation.x);
+    q.setY(pose.pose.orientation.y);
+    q.setZ(pose.pose.orientation.z);
+    q.setW(pose.pose.orientation.w);
+
+    tf::Matrix3x3 m(q);
+    double roll, pitch, yaw;
+    m.getRPY(roll, pitch, yaw);
+
+    state.x = pose.pose.position.x;
+    state.y = pose.pose.position.y;
+    state.theta = yaw;
+
+    odom_robot_.setState(state);
+  }
 
   loadConfig(nh);
 }
@@ -43,6 +67,12 @@ void RobotSim::publishIndividualWheelVelocity()
   u_wheel_frame.velocity[1] = current_u_.speed +
                               (AXLE_LENGTH / 2.0 * current_u_.steering_angle_velocity) +
                               noise(generator_);
+
+  float v = 0.5 * (u_wheel_frame.velocity[0] + u_wheel_frame.velocity[1]);
+  float w = (u_wheel_frame.velocity[1] - u_wheel_frame.velocity[0]) / AXLE_LENGTH;
+
+  State state = odom_robot_.updateRobotState(v, w);
+  tf_helper_.broadcastCurrentPoseToTF(state.x, state.y, state.theta, "map", "odom");
 
   wheel_vel_publisher_.publish(u_wheel_frame);
 }

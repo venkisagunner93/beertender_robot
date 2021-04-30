@@ -18,6 +18,7 @@
 #include <random>
 #include "nav_utils/tf_helper.h"
 #include "nav_utils/map.h"
+#include "robot/car_robot.h"
 
 static const float AXLE_LENGTH = 0.235;
 
@@ -116,6 +117,10 @@ private:
    * @brief Map instance
    */
   Map map_;
+  /**
+   * @brief Robot instance for odometry
+   */
+  CarRobot odom_robot_;
 };
 
 #endif  // ROBOT_SIM_H
