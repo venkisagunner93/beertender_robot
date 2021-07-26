@@ -43,6 +43,16 @@ public:
   bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
                             geometry_msgs::PoseStamped* pose);
   /**
+   * @brief Get the Current Location From TF tree
+   * @param parent_frame Parent frame in TF tree
+   * @param child_frame Child frame in TF tree
+   * @param pose Current pose
+   * @return true
+   * @return false
+   */
+  bool getCurrentPoseFromTF(std::string parent_frame, std::string child_frame,
+                            geometry_msgs::Pose* pose);
+  /**
    * @brief Broadcast current pose to TF tree
    * @param x State x
    * @param y State y
@@ -54,6 +64,13 @@ public:
                                 std::string child_frame);
 
 private:
+  /**
+   * @brief A method to get TF pose from TF tree
+   * @param parent_frame 
+   * @param child_frame 
+   * @return geometry_msgs::TransformStamped 
+   */
+  geometry_msgs::TransformStamped getTFPose(std::string parent_frame, std::string child_frame);
 	/**
 	 * @brief TF buffer
 	 */

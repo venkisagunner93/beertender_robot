@@ -6,7 +6,7 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   RobotSim robot_sim(&nh);
 
-  ros::Rate rate(10);
+  ros::Rate rate(20);
   while (ros::ok())
   {
 		robot_sim.publishIndividualWheelVelocity();

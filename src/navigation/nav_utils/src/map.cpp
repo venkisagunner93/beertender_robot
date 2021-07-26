@@ -49,6 +49,11 @@ float Map::getHeightInMeters()
   return height_ * resolution_;
 }
 
+nav_msgs::OccupancyGrid Map::getOccupancyGrid() const
+{
+  return map_;
+}
+
 void Map::createGraphFromMap()
 {
   graph_.resize(map_.info.width);

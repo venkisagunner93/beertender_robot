@@ -94,6 +94,11 @@ public:
    * @return Node* 
    */
   Node* getNodeFromMap(const float& x, const float& y);
+  /**
+   * @brief A method to get the occupancy grid
+   * @return nav_msgs::OccupancyGrid 
+   */
+  nav_msgs::OccupancyGrid getOccupancyGrid() const;
 
 private:
   /**
