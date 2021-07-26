@@ -121,6 +121,10 @@ private:
    * @brief Robot instance for odometry
    */
   CarRobot odom_robot_;
+  /**
+   * @brief A laser scan message that contains laser configuration
+   */
+  sensor_msgs::LaserScan laser_info_;
 };
 
 #endif  // ROBOT_SIM_H
