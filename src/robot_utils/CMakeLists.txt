@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(robot)
+project(robot_utils)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf2_ros
-  urdf
-  nav_utils
 )
 
 ###################################
@@ -13,8 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES robot_lib
-  DEPENDS nav_utils
 )
 
 ###########
@@ -23,28 +19,14 @@ catkin_package(
 
 include_directories(include
   ${catkin_INCLUDE_DIRS}
-  ${nav_utils_INCLUDE_DIRS}
 )
-
-add_library(robot_lib
-  src/car_robot.cpp)
-target_link_libraries(robot_lib ${catkin_LIBRARIES})
 
 #############
 ## Install ##
 #############
 
-# Install libraries
-install(TARGETS robot_lib
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-)
-
 # Install header files
 install(DIRECTORY include/${PROJECT_NAME}/ 
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-
-install(DIRECTORY urdf
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 

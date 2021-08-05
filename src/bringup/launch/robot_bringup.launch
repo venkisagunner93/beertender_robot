@@ -2,8 +2,8 @@
 <launch>
     <arg name="sim" default="false"/>
 
-    <param name="robot" command="cat $(find robot)/urdf/car_robot.urdf"/>
-    <param name="robot_estimate" command="cat $(find robot)/urdf/car_robot_estimate.urdf"/>
+    <!-- Robot description -->
+    <include file="$(find create_description)/launch/create_2.launch"/>
 
     <!-- Environment -->
     <include file="$(find environments)/launch/env.launch"/>

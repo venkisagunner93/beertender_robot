@@ -7,15 +7,15 @@
                 "limitSymbolsToIncludedHeaders": true
             },
             "includePath": [
-                "${workspaceFolder}/devel_isolated/**",
                 "/opt/ros/noetic/include",
                 "/usr/include/**",
+                "${workspaceFolder}/devel/include",
                 "${workspaceFolder}/**"
             ],
-            "intelliSenseMode": "linux-clang-x64",
             "compilerPath": "/usr/bin/clang-12",
             "cStandard": "c17",
-            "cppStandard": "c++17"
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-clang-x64"
         }
     ],
     "version": 4

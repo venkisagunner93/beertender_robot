@@ -4,7 +4,7 @@ project(global_planner)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf2_ros
-  robot
+  robot_utils
   nav_utils
 )
 
@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  DEPENDS robot nav_utils
+  DEPENDS robot_utils nav_utils
 )
 
 ###########
@@ -22,7 +22,7 @@ catkin_package(
 
 include_directories(include
   ${catkin_INCLUDE_DIRS}
-  ${robot_INCLUDE_DIRS}
+  ${robot_utils_INCLUDE_DIRS}
   ${nav_utils_INCLUDE_DIRS}
 )
 

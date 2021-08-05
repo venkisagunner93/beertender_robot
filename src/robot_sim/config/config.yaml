@@ -7,5 +7,16 @@ robot_sim:
     range_max: 3.0
     time_increment: 0.001
   noise:
-    odom_variance: 0.003
+    # odom_variance: 0.003
+    odom_variance: 0.0
     laser_variance: 0.0002
+  init_state:
+    # meters
+    x: 1.0
+    y: 1.0
+    # radians
+    theta: 0.0
+    # m/s
+    v: 0.0
+    # rad/s
+    w: 0.0

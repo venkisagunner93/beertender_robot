@@ -10,15 +10,18 @@
 #ifndef ROBOT_SIM_H
 #define ROBOT_SIM_H
 
+#include <random>
+
 #include <ros/ros.h>
 #include <tf/LinearMath/Matrix3x3.h>
 #include <ackermann_msgs/AckermannDrive.h>
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/LaserScan.h>
-#include <random>
+
 #include "nav_utils/tf_helper.h"
 #include "nav_utils/map.h"
-#include "robot/car_robot.h"
+
+#include "robot_utils/kinematics/state_update.h"
 
 static const float AXLE_LENGTH = 0.235;
 
@@ -81,6 +84,11 @@ private:
    */
   void cmdVelCallback(const ackermann_msgs::AckermannDrive& msg);
   /**
+   * @brief A method to load init state from parameter server
+   * @param nh ROS Nodehandle for communication
+   */
+  void loadInitState(ros::NodeHandle* nh);
+  /**
    * @brief A method to load parameter from param server
    * @param nh ROS Nodehandle for communication
    */
@@ -118,9 +126,17 @@ private:
    */
   Map map_;
   /**
-   * @brief Robot instance for odometry
+   * @brief Current state of the robot
    */
-  CarRobot odom_robot_;
+  robot_utils::State state_;
+  /**
+   * @brief Odom state of the robot
+   */
+  robot_utils::State odom_state_;
+  /**
+   * @brief Previous time used for dt calculation
+   */
+  ros::Time prev_time_;
   /**
    * @brief A laser scan message that contains laser configuration
    */

@@ -12,17 +12,23 @@
 
 #include <algorithm>
 #include <cmath>
+
+#include <actionlib/server/simple_action_server.h>
+#include <dynamic_reconfigure/server.h>
+
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <ackermann_msgs/AckermannDrive.h>
 #include <sensor_msgs/Joy.h>
-#include <actionlib/server/simple_action_server.h>
-#include <dynamic_reconfigure/server.h>
-#include "local_planner/local_planner.h"
-#include "robot/car_robot.h"
+#include <tf2/LinearMath/Matrix3x3.h>
+
+#include "robot_utils/kinematics/state_update.h"
+
 #include "nav_utils/ReachGlobalPoseAction.h"
 #include "nav_utils/tf_helper.h"
+
+#include "local_planner/local_planner.h"
 #include "local_planner/DWAConfig.h"
 
 #define PARENT_FRAME "map"
@@ -147,11 +153,6 @@ public:
    */
   float calculateMaxVelocityCost(const ackermann_msgs::AckermannDrive& u);
   /**
-   * @brief A method to load init state from parameter server
-   * @param nh ROS Nodehandle for communication
-   */
-  void loadInitState(ros::NodeHandle* nh);
-  /**
    * @brief A method to load DWA config from parameter server
    * @param nh ROS Nodehandle for communication
    */
@@ -167,10 +168,6 @@ public:
    * @brief DWA configuration parameters
    */
   DWAConfig config_;
-  /**
-   * @brief Robot instance
-   */
-  std::unique_ptr<Robot> robot_;
 
 private:
   /**
@@ -182,7 +179,7 @@ private:
    * @brief A method to update robot state and publish velocity
    * @param msg Best setpoint
    */
-  void updateAndPublish(const ackermann_msgs::AckermannDrive& msg);
+  void updateStateAndPublish(const ackermann_msgs::AckermannDrive& msg);
   /**
    * @brief A dynamic reconfigure callback
    * @param config
@@ -238,6 +235,14 @@ private:
    * @brief Joystick message
    */
   sensor_msgs::Joy joy_;
+  /**
+   * @brief Current state of the robot
+   */
+  robot_utils::State state_;
+  /**
+   * @brief Previous time for dt calculation
+   */
+  ros::Time prev_time_;
   /**
    * @brief Dynamic reconfigure server
    */

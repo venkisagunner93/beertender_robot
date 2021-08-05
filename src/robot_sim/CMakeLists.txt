@@ -4,7 +4,7 @@ project(robot_sim)
 find_package(catkin REQUIRED COMPONENTS
   ackermann_msgs
   nav_utils
-  robot
+  robot_utils
   roscpp
   tf2_ros
   nav_msgs
@@ -40,7 +40,7 @@ generate_messages(
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  DEPENDS robot nav_utils nav_msgs geometry_msgs sensor_msgs laser_geometry roscpp tf2_bullet message_runtime
+  DEPENDS robot_utils nav_utils nav_msgs geometry_msgs sensor_msgs laser_geometry roscpp tf2_bullet message_runtime
 )
 
 ###########
@@ -49,7 +49,7 @@ catkin_package(
 
 include_directories(include
   ${catkin_INCLUDE_DIRS}
-  ${robot_INCLUDE_DIRS}
+  ${robot_utils_INCLUDE_DIRS}
   ${nav_utils_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
   ${BULLET_INCLUDE_DIR}
