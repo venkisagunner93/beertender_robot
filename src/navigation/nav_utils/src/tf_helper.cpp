@@ -12,7 +12,7 @@ geometry_msgs::TransformStamped TFHelper::getTFPose(std::string parent_frame, st
   {
     // Max wait time for transform will be 5s
     tf_pose =
-        tf_buffer_.lookupTransform(parent_frame, child_frame, ros::Time(0), ros::Duration(0.5));
+        tf_buffer_.lookupTransform(parent_frame, child_frame, ros::Time(0), ros::Duration(5));
   }
   catch (tf2::TransformException& ex)
   {

@@ -10,8 +10,6 @@
 #ifndef LOCAL_PLANNER_H
 #define LOCAL_PLANNER_H
 
-#include "robot/robot.h"
-
 /**
  * @brief A base class for local planner
  */

@@ -3,3 +3,5 @@ devel/
 build_isolated/
 devel_isolated/
 install/
+logs/
+.catkin_tools/

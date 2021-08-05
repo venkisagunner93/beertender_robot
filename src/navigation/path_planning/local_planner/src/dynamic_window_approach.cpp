@@ -3,14 +3,14 @@
 DWA::DWA(ros::NodeHandle* nh, std::string action_name)
   : as_(*nh, action_name, boost::bind(&DWA::performLocalPlanning, this, _1), false)
   , action_name_(action_name)
+  , prev_time_(ros::Time::now())
 {
   is_joystick_active_ = false;
   joy_subscriber_ = nh->subscribe("joy", 1, &DWA::joyCallback, this);
   trajectory_publisher_ = nh->advertise<nav_msgs::Path>("nav/local_trajectory", 1);
   cmd_vel_publisher_ = nh->advertise<ackermann_msgs::AckermannDrive>("cmd_vel", 1);
 
-  // Load initial state and configurations
-  loadInitState(nh);
+  // Load configurations
   loadDWAConfig(nh);
 
   reconfig_server_.reset(new dynamic_reconfigure::Server<local_planner::DWAConfig>());
@@ -20,6 +20,13 @@ DWA::DWA(ros::NodeHandle* nh, std::string action_name)
 
   zero_u_.speed = 0.0;
   zero_u_.steering_angle_velocity = 0.0;
+
+  // Loading initial state of the robot
+  nh->param<float>("robot_sim/init_state/x", state_.x, 0.0);
+  nh->param<float>("robot_sim/init_state/y", state_.y, 0.0);
+  nh->param<float>("robot_sim/init_state/theta", state_.theta, M_PI / 2);
+  nh->param<float>("robot_sim/init_state/v", state_.v, 0.0);
+  nh->param<float>("robot_sim/init_state/w", state_.w, 0.0);
 
   as_.start();
 }
@@ -36,13 +43,8 @@ void DWA::broadcastCurrentPose()
     ackermann_msgs::AckermannDrive u;
     u.speed = x * (0.2 + turbo * 0.5);
     u.steering_angle_velocity = y * (0.2 + turbo * 0.4);
-    updateAndPublish(u);
+    updateStateAndPublish(u);
   }
-
-  State state = robot_->getState();
-
-  // Broadcasting initial state of the robot
-  tf_helper_.broadcastCurrentPoseToTF(state.x, state.y, state.theta, PARENT_FRAME, CHILD_FRAME);
 }
 
 void DWA::joyCallback(const sensor_msgs::JoyConstPtr& msg)
@@ -53,19 +55,6 @@ void DWA::joyCallback(const sensor_msgs::JoyConstPtr& msg)
   }
 
   joy_ = *msg;
-}
-
-void DWA::loadInitState(ros::NodeHandle* nh)
-{
-  // Loading initial state for the robot
-  State init_state;
-  nh->param<float>("planner/init/x", init_state.x, 0.0);
-  nh->param<float>("planner/init/y", init_state.y, 0.0);
-  nh->param<float>("planner/init/theta", init_state.theta, M_PI / 2);
-  nh->param<float>("planner/init/v", init_state.v, 0.0);
-  nh->param<float>("planner/init/w", init_state.w, 0.0);
-
-  robot_ = std::make_unique<CarRobot>(init_state);
 }
 
 void DWA::loadDWAConfig(ros::NodeHandle* nh)
@@ -109,16 +98,10 @@ std::vector<ackermann_msgs::AckermannDrive> DWA::generateVelocitySamples()
 {
   std::vector<ackermann_msgs::AckermannDrive> u_vec;
 
-  State current_state = robot_->getState();
-
-  float min_v =
-      std::max((current_state.v - config_.limits.max_v_dot * config_.dt), config_.limits.min_v);
-  float max_v =
-      std::min((current_state.v + config_.limits.max_v_dot * config_.dt), config_.limits.max_v);
-  float min_w =
-      std::max((current_state.w - config_.limits.max_w_dot * config_.dt), config_.limits.min_w);
-  float max_w =
-      std::min((current_state.w + config_.limits.max_w_dot * config_.dt), config_.limits.max_w);
+  float min_v = std::max((state_.v - config_.limits.max_v_dot * config_.dt), config_.limits.min_v);
+  float max_v = std::min((state_.v + config_.limits.max_v_dot * config_.dt), config_.limits.max_v);
+  float min_w = std::max((state_.w - config_.limits.max_w_dot * config_.dt), config_.limits.min_w);
+  float max_w = std::min((state_.w + config_.limits.max_w_dot * config_.dt), config_.limits.max_w);
 
   float v_step = (max_v + abs(min_v)) / (config_.window_size - 1);
   float w_step = (max_w + abs(min_w)) / (config_.window_size - 1);
@@ -154,17 +137,19 @@ std::vector<ackermann_msgs::AckermannDrive> DWA::generateVelocitySamples()
 nav_msgs::Path DWA::simulateTrajectory(const ackermann_msgs::AckermannDrive& u)
 {
   nav_msgs::Path trajectory;
+  trajectory.header.stamp = ros::Time::now();
   trajectory.header.frame_id = PARENT_FRAME;
-  CarRobot robot(robot_->getState());
+
+  robot_utils::State sim_state = state_;
 
   for (int i = 0; i < config_.sim_samples; i++)
   {
     geometry_msgs::PoseStamped pose;
-    State state = robot.updateRobotState(u.speed, u.steering_angle_velocity, config_.dt);
-    pose.pose.position.x = state.x;
-    pose.pose.position.y = state.y;
+    updateState(sim_state, u.speed, u.steering_angle_velocity, config_.dt);
+    pose.pose.position.x = sim_state.x;
+    pose.pose.position.y = sim_state.y;
     tf2::Quaternion q;
-    q.setRPY(0, 0, state.theta);
+    q.setRPY(0, 0, sim_state.theta);
     pose.pose.orientation.x = q.x();
     pose.pose.orientation.y = q.y();
     pose.pose.orientation.z = q.z();
@@ -210,9 +195,12 @@ bool DWA::isInsideGoalRegion(const geometry_msgs::PoseStamped& goal)
   return distance_to_goal <= config_.goal_region;
 }
 
-void DWA::updateAndPublish(const ackermann_msgs::AckermannDrive& msg)
+void DWA::updateStateAndPublish(const ackermann_msgs::AckermannDrive& msg)
 {
-  robot_->updateRobotState(msg.speed, msg.steering_angle_velocity);
+  ros::Duration dt = ros::Time::now() - prev_time_;
+  prev_time_ = ros::Time::now();
+
+  updateState(state_, msg.speed, msg.steering_angle_velocity, dt.toSec());
   cmd_vel_publisher_.publish(msg);
 }
 
@@ -271,12 +259,12 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
         best_u.steering_angle_velocity = config_.limits.max_w;
       }
 
-      updateAndPublish(best_u);
+      updateStateAndPublish(best_u);
     }
     else
     {
       result_.has_reached = true;
-      updateAndPublish(zero_u_);
+      updateStateAndPublish(zero_u_);
       as_.setSucceeded(result_);
       break;
     }
@@ -286,7 +274,7 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
 
   if (!result_.has_reached)
   {
-    updateAndPublish(zero_u_);
+    updateStateAndPublish(zero_u_);
     as_.setAborted(result_);
   }
 }
