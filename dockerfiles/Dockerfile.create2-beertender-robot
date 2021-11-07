@@ -1,0 +1,8 @@
+FROM create2-base:latest
+
+ENV WS=beertender_robot
+
+RUN mkdir /${WS}
+COPY /install /${WS}/.
+
+RUN cd ${WS}
