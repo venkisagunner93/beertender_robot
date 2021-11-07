@@ -18,6 +18,9 @@ BASE_IMAGE_DOCKERFILE_PATH = DOCKERFILES + '/' + BASE_IMAGE_DOCKERFILE
 BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH = DOCKERFILES + \
     '/' + BEERTENDER_ROBOT_IMAGE_DOCKERFILE
 
+LIVE_IMAGE_NAME = 'create2-beertender-robot-live'
+PORT = '5000'
+
 
 def build_base_image():
     system('DOCKER_BUILDKIT=1 docker build -f ' +
@@ -39,10 +42,19 @@ def build_images():
     build_robot_image()
 
 
+def create_remote_image_name(host_ip, port, image_name):
+    return host_ip + ':' + port + '/' + image_name
+
+
 def push_images(host_ip):
     system('docker tag create2-beertender-robot:latest ' +
-           host_ip + ':5000/create2-beertender-robot-live')
-    system('docker push ' + host_ip + ':5000/create2-beertender-robot-live')
+           create_remote_image_name(host_ip, PORT, LIVE_IMAGE_NAME))
+    system('docker push ' + create_remote_image_name(host_ip, PORT, LIVE_IMAGE_NAME))
+
+
+def pull_containers_remotely(host_ip):
+    system('ssh robot@' + host_ip + ' docker pull ' +
+           create_remote_image_name(host_ip, PORT, LIVE_IMAGE_NAME))
 
 
 def restart_docker_containers(host_ip):
@@ -55,7 +67,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '-b', '--build', help='builds both base image and beertender robot image', action='store_true')
     parser.add_argument(
-        '-p', '--push', help='push latest builds to the beertender robot', action='store', type=str)
+        '-p', '--push', help='push latest build to the beertender robot', action='store', type=str)
 
     args = parser.parse_args()
 
@@ -64,4 +76,5 @@ if __name__ == "__main__":
     elif args.push:
         build_images()
         push_images(args.push)
-        restart_docker_containers(args.push)
+        pull_containers_remotely(args.push)
+        # restart_docker_containers(args.push)
