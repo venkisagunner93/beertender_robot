@@ -8,8 +8,8 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata keyboard-configur
 
 RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
 
-RUN apt-get update && apt-get install -y ros-noetic-ros-base ros-noetic-map-server ros-noetic-joy ros-noetic-ackermann-msgs ros-noetic-tf2-bullet
+RUN apt-get update && apt-get install -y ros-noetic-ros-base ros-noetic-map-server ros-noetic-joy ros-noetic-ackermann-msgs ros-noetic-tf2-bullet ros-noetic-tf2-ros
 
-RUN apt-get install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
+RUN apt-get install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools
 
 RUN rosdep init && rosdep update
