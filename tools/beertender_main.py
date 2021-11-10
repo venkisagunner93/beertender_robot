@@ -30,7 +30,7 @@ def build_base_image():
 def build_robot_image():
     temp_ws = '/tmp/' + hashlib.md5(os.urandom(12)).hexdigest()
     system('mkdir -p ' + temp_ws)
-    system('cp -r ' + WS + '/install ' + temp_ws)
+    system('cp -r ' + WS + '/src ' + temp_ws)
     system('cp ' + BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH + ' ' + temp_ws)
     system('cd ' + temp_ws +
            ' && DOCKER_BUILDKIT=1 docker build -f ' + BEERTENDER_ROBOT_IMAGE_DOCKERFILE + ' -t create2-beertender-robot:latest .')

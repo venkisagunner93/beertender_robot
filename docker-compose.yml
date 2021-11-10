@@ -1,0 +1,15 @@
+version: "3.3"
+services:
+    roscore:
+        image: "create2-beertender-robot:latest"
+        network_mode: host
+        tty: yes
+        command: bash -ce "source beertender_robot/install/setup.bash && roscore"
+    
+    navigation:
+        image: "create2-beertender-robot:latest"
+        network_mode: host
+        tty: yes
+        depends_on:
+            - "roscore"
+        command: bash -ce "source beertender_robot/install/setup.bash && roslaunch --wait planner planner.launch"
