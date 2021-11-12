@@ -11,6 +11,7 @@
 #define ROBOT_SIM_H
 
 #include <random>
+#include <chrono>
 
 #include <ros/ros.h>
 #include <tf/LinearMath/Matrix3x3.h>

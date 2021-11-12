@@ -23,7 +23,7 @@ PORT = '5000'
 
 
 def build_base_image():
-    system('DOCKER_BUILDKIT=1 docker build -f ' +
+    system('DOCKER_BUILDKIT=0 docker build -f ' +
            BASE_IMAGE_DOCKERFILE_PATH + ' -t create2-base:latest .')
 
 
@@ -33,7 +33,7 @@ def build_robot_image():
     system('cp -r ' + WS + '/src ' + temp_ws)
     system('cp ' + BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH + ' ' + temp_ws)
     system('cd ' + temp_ws +
-           ' && DOCKER_BUILDKIT=1 docker build -f ' + BEERTENDER_ROBOT_IMAGE_DOCKERFILE + ' -t create2-beertender-robot:latest .')
+           ' && DOCKER_BUILDKIT=0 docker build -f ' + BEERTENDER_ROBOT_IMAGE_DOCKERFILE + ' -t create2-beertender-robot:latest .')
     system('rm -rf ' + temp_ws)
 
 

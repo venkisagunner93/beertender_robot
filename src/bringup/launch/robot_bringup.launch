@@ -1,16 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="sim" default="false"/>
-
-    <!-- Robot description -->
-    <include file="$(find create_description)/launch/create_2.launch"/>
-
-    <!-- Environment -->
-    <include file="$(find environments)/launch/env.launch"/>
+    <!-- Hardware stack -->
+    <include file="$(find create_bringup)/launch/create_2.launch"/>
 
     <!-- Planning stack -->
     <include file="$(find planner)/launch/planner.launch"/>
-
-    <!-- Sim stack -->
-    <include file="$(find robot_sim)/launch/robot_sim.launch" if="$(arg sim)"/>
 </launch>

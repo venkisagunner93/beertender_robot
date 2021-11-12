@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Robot description -->
+    <include file="$(find create_description)/launch/create_2.launch"/>
+
+    <!-- Planning stack -->
+    <include file="$(find planner)/launch/planner.launch"/>
+
+    <!-- Sim stack -->
+    <include file="$(find robot_sim)/launch/robot_sim.launch"/>
+</launch>
