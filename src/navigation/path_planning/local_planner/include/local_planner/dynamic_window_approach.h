@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <mutex>
 
 #include <actionlib/server/simple_action_server.h>
 #include <dynamic_reconfigure/server.h>

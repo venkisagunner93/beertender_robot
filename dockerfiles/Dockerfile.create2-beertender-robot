@@ -5,6 +5,6 @@ ENV WS=beertender_robot
 RUN mkdir -p /${WS}/src /${WS}/install 
 COPY src /${WS}/src/.
 
-RUN . /opt/ros/noetic/setup.sh && rosdep install --from-path /${WS} --ignore-src -y
+RUN . /opt/ros/melodic/setup.sh && rosdep install --from-path /${WS} --ignore-src -y
 
-RUN cd ${WS} && . /opt/ros/noetic/setup.sh && catkin config --install && catkin build
+RUN cd ${WS} && . /opt/ros/melodic/setup.sh && catkin config --install && catkin build
