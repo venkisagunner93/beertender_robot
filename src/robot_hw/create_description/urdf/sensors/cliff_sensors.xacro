@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:macro name="cliff_sensor" params="name:=cliff_sensor parent:=base_link *origin">
+
+  <xacro:include filename="$(find create_description)/urdf/utils/conversions.xacro"/>
+
+  <xacro:property name="parent_link"        value="${parent}"/>
+  <xacro:property name="link_name"          value="${name}_link"/>
+
+  <xacro:property name="min_range_cm"       value="0.5"/>
+  <xacro:property name="max_range_cm"       value="5"/>
+  <xacro:property name="resolution_cm"      value="0.1"/>
+
+  <xacro:property name="rate_hz"            value="20.0"/>
+  <xacro:property name="min_cliff_value_cm" value="3.85"/>
+
+  <joint name="${name}_joint" type="fixed">
+    <xacro:insert_block name="origin" />
+    <parent link="${parent_link}" />
+    <child link="${link_name}" />
+  </joint>
+
+  <link name="${link_name}" />
+
+  <gazebo reference="${link_name}">
+    <sensor type="ray" name="${name}">
+      <always_on>true</always_on>
+      <update_rate>${rate_hz}</update_rate>
+      <visualize>$(arg visualize)</visualize>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>1</samples>
+            <resolution>1</resolution>
+            <min_angle>0</min_angle>
+            <max_angle>0</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>${min_range_cm*cm_to_m}</min>
+          <max>${max_range_cm*cm_to_m}</max>
+          <resolution>${resolution_cm*cm_to_m}</resolution>
+        </range>
+      </ray>
+      <plugin name="gazebo_ros_${name}" filename="libcreate_cliff_plugin.so">
+        <topicName>${name}/raw</topicName>
+        <frameName>${link_name}</frameName>
+        <cliffValue>${min_cliff_value_cm*cm_to_m}</cliffValue>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+</xacro:macro>
+
+</robot>

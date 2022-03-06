@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:macro name="imu_sensor" params="name:=imu_sensor parent:=base_link *origin *mesh">
+
+  <xacro:include filename="$(find create_description)/urdf/utils/inertias.xacro"/>
+
+  <xacro:property name="parent_link" value="${parent}"/>
+  <xacro:property name="link_name" value="${name}_link"/>
+
+  <joint name="${name}_joint" type="fixed">
+    <xacro:insert_block name="origin" />
+    <parent link="${parent_link}" />
+    <child link="${link_name}" />
+  </joint>
+
+  <link name="${link_name}">
+    <visual>
+      <geometry>
+        <xacro:insert_block name="mesh"/>
+      </geometry>
+      <material name="chambray"/>
+    </visual>
+  </link>
+
+  <gazebo reference="${link_name}">
+    <material>Gazebo/BlueGlow</material>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="${name}" filename="libcreate_imu_plugin.so">
+      <alwaysOn>true</alwaysOn>
+      <rosDebugLevel>na</rosDebugLevel>
+      <updateRate>40</updateRate>
+      <bodyName>${link_name}</bodyName>
+      <frameName>${link_name}</frameName>
+      <topicName>${name}/data</topicName>
+      <serviceName>${name}/is_calibrated</serviceName>
+      <gaussianNoise>${0.0017*0.0017}</gaussianNoise>
+      <xyzOffset>0 0 0</xyzOffset>
+      <rpyOffset>0 0 0</rpyOffset>
+    </plugin>
+  </gazebo>
+
+</xacro:macro>
+
+</robot>

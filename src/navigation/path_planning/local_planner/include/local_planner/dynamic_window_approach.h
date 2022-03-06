@@ -20,7 +20,6 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
-#include <ackermann_msgs/AckermannDrive.h>
 #include <sensor_msgs/Joy.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 
@@ -132,13 +131,13 @@ public:
    * @brief A method to generate velocity samples
    * @return std::vector<ControlInput>
    */
-  std::vector<ackermann_msgs::AckermannDrive> generateVelocitySamples();
+  std::vector<geometry_msgs::Twist> generateVelocitySamples();
   /**
    * @brief A method to simulate a trajectory from control input
    * @param u Control input
    * @return nav_msgs::Path
    */
-  nav_msgs::Path simulateTrajectory(const ackermann_msgs::AckermannDrive& u);
+  nav_msgs::Path simulateTrajectory(const geometry_msgs::Twist& u);
   /**
    * @brief A method to calculate distance to goal cost for a trajectory
    * @param trajectory Simulated trajectory
@@ -152,7 +151,7 @@ public:
    * @param u Control input simulated
    * @return float
    */
-  float calculateMaxVelocityCost(const ackermann_msgs::AckermannDrive& u);
+  float calculateMaxVelocityCost(const geometry_msgs::Twist& u);
   /**
    * @brief A method to load DWA config from parameter server
    * @param nh ROS Nodehandle for communication
@@ -180,7 +179,7 @@ private:
    * @brief A method to update robot state and publish velocity
    * @param msg Best setpoint
    */
-  void updateStateAndPublish(const ackermann_msgs::AckermannDrive& msg);
+  void updateStateAndPublish(const geometry_msgs::Twist& msg);
   /**
    * @brief A dynamic reconfigure callback
    * @param config
@@ -219,7 +218,7 @@ private:
   /**
    * @brief Zero velocity setpoint
    */
-  ackermann_msgs::AckermannDrive zero_u_;
+  geometry_msgs::Twist zero_u_;
   /**
    * @brief ROS subscriber for joystick msgs
    */

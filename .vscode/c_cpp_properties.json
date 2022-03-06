@@ -8,6 +8,7 @@
             },
             "includePath": [
                 "/opt/ros/noetic/include",
+                "/usr/include/gazebo-11",
                 "/usr/include/**",
                 "${workspaceFolder}/devel/include",
                 "${workspaceFolder}/**"

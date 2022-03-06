@@ -126,7 +126,7 @@ private:
   bool publish_tf_;
   int baud_;
 
-  void cmdVelCallback(const ackermann_msgs::AckermannDriveConstPtr& msg);
+  void cmdVelCallback(const geometry_msgs::Twist& msg);
   void debrisLEDCallback(const std_msgs::BoolConstPtr& msg);
   void spotLEDCallback(const std_msgs::BoolConstPtr& msg);
   void dockLEDCallback(const std_msgs::BoolConstPtr& msg);
