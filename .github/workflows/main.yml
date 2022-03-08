@@ -11,4 +11,4 @@ jobs:
       - name: Build package
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash -c " rm -rf build/ devel/ && source /opt/ros/noetic/setup.bash && catkin_make_isolated"
+          /bin/bash -c " rm -rf build/ devel/ && source /opt/ros/noetic/setup.bash && catkin build"
