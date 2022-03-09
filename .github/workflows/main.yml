@@ -10,5 +10,5 @@ jobs:
       - uses: actions/checkout@v1          
       - name: Build package
         run: |
-          cd $GITHUB_WORKSPACE && ls -la $GITHUB_WORKSPACE
-          /bin/bash -c " rm -rf build/ devel/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build --no-status"
+          cd $GITHUB_WORKSPACE
+          /bin/bash -c " rm -rf .catkin_tools/ build/ devel/ install/ logs/ && mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build --no-status"
