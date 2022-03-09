@@ -11,7 +11,7 @@ jobs:
       - name: Build package
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash -c " mkdir install/ logs/ && source /opt/ros/melodic/setup.bash"
+          /bin/bash -c " mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build --no-status"
   clean-up:
     runs-on: self-hosted
     needs: build
