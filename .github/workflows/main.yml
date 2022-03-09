@@ -11,4 +11,4 @@ jobs:
       - name: Build package
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash -c " rm -rf build/ devel/ install/ logs/ && source /opt/ros/melodic/setup.bash && catkin build --no-status"
+          /bin/bash -c " rm -rf build/ devel/ install/ logs/ && source /opt/ros/melodic/setup.bash && catkin build"
