@@ -17,5 +17,5 @@ function sdk () {
         --gpus all \
         --runtime nvidia \
         --platform linux/arm64 \
-        sdk-beertender-robot:latest
+        sdk-base:latest
 }

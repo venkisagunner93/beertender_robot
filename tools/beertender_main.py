@@ -11,24 +11,19 @@ HOME = expanduser('~')
 WS = HOME + '/beertender_robot'
 DOCKERFILES = WS + '/dockerfiles'
 
-CREATE2_BASE_IMAGE_DOCKERFILE = 'Dockerfile.create2-base'
-CREATE2_BEERTENDER_ROBOT_IMAGE_DOCKERFILE = 'Dockerfile.create2-beertender-robot'
+SDK_BASE_IMAGE_DOCKERFILE = 'Dockerfile.sdk-base'
+SDK_BASE_IMAGE_DOCKERFILE_PATH = DOCKERFILES + \
+    '/' + SDK_BASE_IMAGE_DOCKERFILE
 
+CREATE2_BASE_IMAGE_DOCKERFILE = 'Dockerfile.create2-base'
 CREATE2_BASE_IMAGE_DOCKERFILE_PATH = DOCKERFILES + \
     '/' + CREATE2_BASE_IMAGE_DOCKERFILE
+
+CREATE2_BEERTENDER_ROBOT_IMAGE_DOCKERFILE = 'Dockerfile.create2-beertender-robot'
 CREATE2_BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH = DOCKERFILES + \
     '/' + CREATE2_BEERTENDER_ROBOT_IMAGE_DOCKERFILE
 
-SDK_BASE_IMAGE_DOCKERFILE = 'Dockerfile.sdk-base'
-SDK_BEERTENDER_ROBOT_IMAGE_DOCKERFILE = 'Dockerfile.sdk-beertender-robot'
-
-SDK_BASE_IMAGE_DOCKERFILE_PATH = DOCKERFILES + \
-    '/' + SDK_BASE_IMAGE_DOCKERFILE
-SDK_BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH = DOCKERFILES + \
-    '/' + SDK_BEERTENDER_ROBOT_IMAGE_DOCKERFILE
-
 LIVE_IMAGE_NAME = 'create2-beertender-robot-live'
-SDK_IMAGE_NAME = 'create2-beertender-robot-sdk'
 PORT = '5000'
 
 
@@ -41,18 +36,13 @@ def build_base_image(is_robot=True):
                SDK_BASE_IMAGE_DOCKERFILE_PATH + ' -t sdk-base:latest .')
 
 
-def build_beertender_robot_image(is_robot=True):
+def build_beertender_robot_image():
     temp_ws = '/tmp/' + hashlib.md5(os.urandom(12)).hexdigest()
     system('mkdir -p ' + temp_ws)
     system('cp -r ' + WS + '/src ' + temp_ws)
-    if is_robot:
-        system('cp ' + CREATE2_BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH + ' ' + temp_ws)
-        system('cd ' + temp_ws +
-               ' && DOCKER_BUILDKIT=0 docker build -f ' + CREATE2_BEERTENDER_ROBOT_IMAGE_DOCKERFILE + ' -t create2-beertender-robot:latest .')
-    else:
-        system('cp ' + SDK_BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH + ' ' + temp_ws)
-        system('cd ' + temp_ws +
-               ' && DOCKER_BUILDKIT=0 docker build -f ' + SDK_BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH + ' -t sdk-beertender-robot:latest .')
+    system('cp ' + CREATE2_BEERTENDER_ROBOT_IMAGE_DOCKERFILE_PATH + ' ' + temp_ws)
+    system('cd ' + temp_ws +
+           ' && DOCKER_BUILDKIT=0 docker build -f ' + CREATE2_BEERTENDER_ROBOT_IMAGE_DOCKERFILE + ' -t create2-beertender-robot:latest .')
     system('rm -rf ' + temp_ws)
 
 
@@ -83,7 +73,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '-p', '--push', help='push latest build to the beertender robot', action='store', type=str)
     parser.add_argument(
-        '-s', '--sdk', help='builds both base image and beertender robot image for sdk', action='store_true')
+        '-s', '--sdk', help='builds sdk base image', action='store_true')
 
     args = parser.parse_args()
 
@@ -92,14 +82,12 @@ if __name__ == "__main__":
 
     if args.sdk:
         build_base_image(is_robot=False)
-        build_beertender_robot_image(is_robot=False)
     else:
         if args.build:
             build_base_image(is_robot=True)
             build_beertender_robot_image(is_robot=True)
-        elif args.push:
-            build_base_image(is_robot=True)
-            build_beertender_robot_image(is_robot=True)
+
+        if args.push:
             push_images(args.push)
             pull_containers_remotely(args.push)
             # restart_docker_containers(args.push)

@@ -4,11 +4,11 @@ on: [push]
 jobs:    
   build:
     runs-on: self-hosted
-    container: docker://venkisagunner93/ros_github_actions:latest
+    container: docker://venkisagunner93/sdk-base:latest
     steps:
       - uses: AutoModality/action-clean@v1
       - uses: actions/checkout@v1          
       - name: Build package
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash -c " rm -rf build/ devel/ && source /opt/ros/noetic/setup.bash && catkin build"
+          /bin/bash -c " rm -rf build/ devel/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build"
