@@ -1,16 +1,7 @@
 # This is a basic workflow to help you get started with Actions
 name: CI
 on: [push]
-jobs:
-  clean-up:
-    runs-on: self-hosted
-    needs: build
-    steps:
-      - name: Clean working directory
-        shell: bash
-        run: |
-          cd $GITHUB_WORKSPACE
-          sudo rm -rf *
+jobs:    
   build:
     runs-on: self-hosted
     container: docker://venkisagunner93/sdk-base:latest
@@ -21,3 +12,12 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           /bin/bash -c " mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build --no-status"
+  clean-up:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Clean working directory
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE
+          sudo rm -rf *
