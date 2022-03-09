@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:macro name="omni_sensor" params="name:=omni_sensor parent:=base_link *origin">
+
+  <xacro:property name="parent_link" value="${parent}"/>
+  <xacro:property name="link_name" value="${name}_link"/>
+
+  <joint name="${name}_joint" type="fixed">
+    <xacro:insert_block name="origin" />
+    <parent link="${parent_link}" />
+    <child link="${link_name}" />
+  </joint>
+
+  <link name="${link_name}"/>
+
+  <gazebo>
+  </gazebo>
+
+</xacro:macro>
+
+</robot>

@@ -6,7 +6,6 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 find_package(libcreate REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
-  ackermann_msgs
   create_msgs
   diagnostic_msgs
   diagnostic_updater

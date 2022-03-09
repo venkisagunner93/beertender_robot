@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="init_x" default="1.0" />
+	<arg name="init_y" default="1.0" />
+	<arg name="init_theta" default="0.0" />
+	<include file="$(find create_description)/launch/create_description.launch"/>
+	<include file="$(find simulation)/launch/sim_world.launch"/>
+	<include file="$(find environments)/launch/env.launch"/>
+	<node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model create_2 -x $(arg init_x) -y $(arg init_y) -z 0 -Y $(arg init_theta)" />
+</launch>

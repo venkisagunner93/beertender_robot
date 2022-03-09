@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="freq" value="40" />
+
+  <!-- Robot description -->
+  <arg name="model" value="$(find create_description)/urdf/create_2.xacro" />
+
+  <arg name="xacro_args" value="visualize:=false
+                                robot_name:=create_2
+                                enable_ros_control:=False
+                                add_plug:=false" />
+
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model) $(arg xacro_args)" />
+
+  <!-- Robot state publisher-->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen">
+    <param name="use_tf_static" value="true" />
+    <param name="publish_frequency" type="double" value="$(arg freq)" />
+  </node>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+  <!-- Static transform for bumper_link to base_link -->
+  <node pkg="tf" type="static_transform_publisher" name="bumper_static_tf" args="0 0 0 0 0 0 base_link bumper_link $(arg freq)" />
+</launch>

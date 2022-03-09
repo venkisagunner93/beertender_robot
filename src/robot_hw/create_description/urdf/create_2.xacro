@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<robot name="create_2" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find create_description)/urdf/create_base.xacro" />
+  <xacro:include filename="$(find create_description)/urdf/sensors/lasers/rplidar.xacro"/>
+  <xacro:include filename="$(find create_description)/urdf/create_base_gazebo.xacro" />
+
+  <xacro:create_base wheel_separation="0.235" base_diameter="0.3485">
+    <mesh filename="package://create_description/meshes/create_2.dae" />
+  </xacro:create_base>
+</robot>

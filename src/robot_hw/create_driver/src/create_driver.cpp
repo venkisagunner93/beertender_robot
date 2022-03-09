@@ -161,9 +161,9 @@ CreateDriver::~CreateDriver()
   delete robot_;
 }
 
-void CreateDriver::cmdVelCallback(const ackermann_msgs::AckermannDriveConstPtr& msg)
+void CreateDriver::cmdVelCallback(const geometry_msgs::Twist& msg)
 {
-  robot_->drive(msg->speed, msg->steering_angle_velocity);
+  robot_->drive(msg.linear.x, msg.angular.z);
   last_cmd_vel_time_ = ros::Time::now();
 }
 

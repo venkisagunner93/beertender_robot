@@ -8,7 +8,7 @@ DWA::DWA(ros::NodeHandle* nh, std::string action_name)
   is_joystick_active_ = false;
   joy_subscriber_ = nh->subscribe("joy", 1, &DWA::joyCallback, this);
   trajectory_publisher_ = nh->advertise<nav_msgs::Path>("nav/local_trajectory", 1);
-  cmd_vel_publisher_ = nh->advertise<ackermann_msgs::AckermannDrive>("cmd_vel", 1);
+  cmd_vel_publisher_ = nh->advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
   // Load configurations
   loadDWAConfig(nh);
@@ -18,8 +18,8 @@ DWA::DWA(ros::NodeHandle* nh, std::string action_name)
       boost::bind(&DWA::reconfigCallback, this, _1, _2);
   reconfig_server_->setCallback(f);
 
-  zero_u_.speed = 0.0;
-  zero_u_.steering_angle_velocity = 0.0;
+  zero_u_.linear.x = 0.0;
+  zero_u_.angular.z = 0.0;
 
   // Loading initial state of the robot
   nh->param<float>("robot_sim/init_state/x", state_.x, 0.0);
@@ -40,9 +40,9 @@ void DWA::broadcastCurrentPose()
 
     int turbo = joy_.buttons[7];
 
-    ackermann_msgs::AckermannDrive u;
-    u.speed = x * (0.2 + turbo * 0.5);
-    u.steering_angle_velocity = y * (0.2 + turbo * 0.4);
+    geometry_msgs::Twist u;
+    u.linear.x = x * (0.2 + turbo * 0.5);
+    u.angular.z = y * (0.2 + turbo * 0.4);
     updateStateAndPublish(u);
   }
 }
@@ -94,9 +94,9 @@ void DWA::reconfigCallback(local_planner::DWAConfig& config, uint32_t level)
   config_.limits.max_theta = static_cast<float>(config.max_theta);
 }
 
-std::vector<ackermann_msgs::AckermannDrive> DWA::generateVelocitySamples()
+std::vector<geometry_msgs::Twist> DWA::generateVelocitySamples()
 {
-  std::vector<ackermann_msgs::AckermannDrive> u_vec;
+  std::vector<geometry_msgs::Twist> u_vec;
 
   float min_v = std::max((state_.v - config_.limits.max_v_dot * config_.dt), config_.limits.min_v);
   float max_v = std::min((state_.v + config_.limits.max_v_dot * config_.dt), config_.limits.max_v);
@@ -123,9 +123,9 @@ std::vector<ackermann_msgs::AckermannDrive> DWA::generateVelocitySamples()
   {
     for (int j = 0; j < config_.window_size; j++)
     {
-      ackermann_msgs::AckermannDrive u;
-      u.speed = v_samples[i];
-      u.steering_angle_velocity = w_samples[j];
+      geometry_msgs::Twist u;
+      u.linear.x = v_samples[i];
+      u.angular.z = w_samples[j];
 
       u_vec.push_back(u);
     }
@@ -134,7 +134,7 @@ std::vector<ackermann_msgs::AckermannDrive> DWA::generateVelocitySamples()
   return u_vec;
 }
 
-nav_msgs::Path DWA::simulateTrajectory(const ackermann_msgs::AckermannDrive& u)
+nav_msgs::Path DWA::simulateTrajectory(const geometry_msgs::Twist& u)
 {
   nav_msgs::Path trajectory;
   trajectory.header.stamp = ros::Time::now();
@@ -145,7 +145,7 @@ nav_msgs::Path DWA::simulateTrajectory(const ackermann_msgs::AckermannDrive& u)
   for (int i = 0; i < config_.sim_samples; i++)
   {
     geometry_msgs::PoseStamped pose;
-    updateState(sim_state, u.speed, u.steering_angle_velocity, config_.dt);
+    updateState(sim_state, u.linear.x, u.angular.z, config_.dt);
     pose.pose.position.x = sim_state.x;
     pose.pose.position.y = sim_state.y;
     tf2::Quaternion q;
@@ -175,9 +175,9 @@ float DWA::calculateGoalDistanceCost(const nav_msgs::Path& trajectory,
   return cost;
 }
 
-float DWA::calculateMaxVelocityCost(const ackermann_msgs::AckermannDrive& u)
+float DWA::calculateMaxVelocityCost(const geometry_msgs::Twist& u)
 {
-  return config_.gains.max_velocity_gain * (config_.limits.max_v - u.speed);
+  return config_.gains.max_velocity_gain * (config_.limits.max_v - u.linear.x);
 }
 
 bool DWA::isInsideGoalRegion(const geometry_msgs::PoseStamped& goal)
@@ -195,12 +195,12 @@ bool DWA::isInsideGoalRegion(const geometry_msgs::PoseStamped& goal)
   return distance_to_goal <= config_.goal_region;
 }
 
-void DWA::updateStateAndPublish(const ackermann_msgs::AckermannDrive& msg)
+void DWA::updateStateAndPublish(const geometry_msgs::Twist& msg)
 {
   ros::Duration dt = ros::Time::now() - prev_time_;
   prev_time_ = ros::Time::now();
 
-  updateState(state_, msg.speed, msg.steering_angle_velocity, dt.toSec());
+  updateState(state_, msg.linear.x, msg.angular.z, dt.toSec());
   cmd_vel_publisher_.publish(msg);
 }
 
@@ -231,9 +231,9 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
     {
       float trajectory_cost = 0.0;
       float lowest_cost = 1e6;
-      ackermann_msgs::AckermannDrive best_u;
+      geometry_msgs::Twist best_u;
 
-      std::vector<ackermann_msgs::AckermannDrive> u_vec = generateVelocitySamples();
+      std::vector<geometry_msgs::Twist> u_vec = generateVelocitySamples();
 
       for (int i = 0; i < u_vec.size(); i++)
       {
@@ -249,14 +249,14 @@ void DWA::performLocalPlanning(const nav_utils::ReachGlobalPoseGoalConstPtr& goa
         trajectory_publisher_.publish(trajectory);
       }
 
-      if (best_u.speed >= config_.limits.max_v)
+      if (best_u.linear.x >= config_.limits.max_v)
       {
-        best_u.speed = config_.limits.max_v;
+        best_u.linear.x = config_.limits.max_v;
       }
 
-      if (best_u.steering_angle_velocity >= config_.limits.max_w)
+      if (best_u.angular.z >= config_.limits.max_w)
       {
-        best_u.steering_angle_velocity = config_.limits.max_w;
+        best_u.angular.z = config_.limits.max_w;
       }
 
       updateStateAndPublish(best_u);
