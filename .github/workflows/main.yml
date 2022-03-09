@@ -11,4 +11,13 @@ jobs:
       - name: Build package
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash -c " mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build --no-status && rm -rf .catkin_tools/ build/ devel/ install/ logs/"
+          /bin/bash -c " mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build --no-status"
+  clean-up:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Clean working directory
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE
+          rm -rf *

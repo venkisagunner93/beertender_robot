@@ -25,6 +25,6 @@ catkin_package(
 #############
 
 # Install assets
-install(DIRECTORY launch config worlds models
+install(DIRECTORY launch worlds models
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
