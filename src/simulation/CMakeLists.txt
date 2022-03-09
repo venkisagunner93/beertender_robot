@@ -13,21 +13,10 @@ find_package(catkin REQUIRED COMPONENTS
   create_description
 )
 
-###########
-## Build ##
-###########
-
-include_directories(include
-  ${catkin_INCLUDE_DIRS}
-  ${robot_utils_INCLUDE_DIRS}
-  ${GAZEBO_INCLUDE_DIRS}
-)
-
 ###################################
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  INCLUDE_DIRS include
   CATKIN_DEPENDS gazebo_plugins robot_utils roscpp std_msgs tf tf2_ros
 )
 

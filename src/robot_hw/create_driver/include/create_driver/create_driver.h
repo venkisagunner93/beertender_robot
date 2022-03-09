@@ -38,7 +38,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Twist.h>
-#include <ackermann_msgs/AckermannDrive.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
