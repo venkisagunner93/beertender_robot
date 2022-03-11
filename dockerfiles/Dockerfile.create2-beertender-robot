@@ -4,6 +4,9 @@ ENV WS=beertender_robot
 
 RUN mkdir -p /${WS}/src /${WS}/install 
 COPY src /${WS}/src/.
+RUN rm -rf ${WS}/src/simulation
+
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
 RUN . /opt/ros/melodic/setup.sh && rosdep install --from-path /${WS} --ignore-src -y
 

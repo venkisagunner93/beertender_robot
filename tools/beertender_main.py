@@ -85,7 +85,7 @@ if __name__ == "__main__":
     else:
         if args.build:
             build_base_image(is_robot=True)
-            build_beertender_robot_image(is_robot=True)
+            build_beertender_robot_image()
 
         if args.push:
             push_images(args.push)

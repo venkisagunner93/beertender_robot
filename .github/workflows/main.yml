@@ -2,22 +2,46 @@
 name: CI
 on: [push]
 jobs:    
-  build:
+  build-sdk:
     runs-on: self-hosted
     container: docker://venkisagunner93/sdk-base:latest
     steps:
       - uses: AutoModality/action-clean@v1
       - uses: actions/checkout@v1          
       - name: Build package
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash -c " mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build"
-  clean-up:
+          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build
+  clean-up-sdk:
     runs-on: self-hosted
-    needs: build
+    needs: build-sdk
     steps:
       - name: Clean working directory
         shell: bash
         run: |
-          cd $GITHUB_WORKSPACE
-          sudo rm -rf *
+          cd $GITHUB_WORKSPACE && ls -la
+          sudo rm -rf * && sudo rm -rf .catkin_tools/ && ls -la
+  build-robot:
+    runs-on: self-hosted
+    needs: clean-up-sdk
+    container: docker://venkisagunner93/create2-base:latest
+    steps:
+      - uses: AutoModality/action-clean@v1
+      - uses: actions/checkout@v1          
+      - name: Build package
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE && rm -rf src/simulation
+          echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+          source /opt/ros/melodic/setup.bash && rosdep update && rosdep install --from-path $GITHUB_WORKSPACE --ignore-src -y
+          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build
+  clean-up-robot:
+    runs-on: self-hosted
+    needs: build-robot
+    steps:
+      - name: Clean working directory
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE && ls -la
+          sudo rm -rf * && sudo rm -rf .catkin_tools/ && ls -la
