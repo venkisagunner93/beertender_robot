@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE && rm -rf src/simulation
-          source /opt/ros/melodic/setup.bash && rosdep init && rosdep update && rosdep install --from-path $GITHUB_WORKSPACE --ignore-src -y
+          source /opt/ros/melodic/setup.bash && rosdep update && rosdep install --from-path $GITHUB_WORKSPACE --ignore-src -y
           mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install
   clean-up-robot:
     runs-on: self-hosted
