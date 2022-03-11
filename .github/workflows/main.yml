@@ -12,7 +12,7 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE
-          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build
+          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install
   clean-up-sdk:
     runs-on: self-hosted
     needs: build-sdk
@@ -20,27 +20,27 @@ jobs:
       - name: Clean working directory
         shell: bash
         run: |
-          cd $GITHUB_WORKSPACE
+          cd $GITHUB_WORKSPACE && ls -la
           sudo rm -rf *
-  build-robot:
-    runs-on: self-hosted
-    needs: clean-up-sdk
-    container: docker://venkisagunner93/create2-base:latest
-    steps:
-      - uses: AutoModality/action-clean@v1
-      - uses: actions/checkout@v1          
-      - name: Build package
-        shell: bash
-        run: |
-          cd $GITHUB_WORKSPACE && rm -rf src/simulation
-          source /opt/ros/melodic/setup.bash && rosdep init && rosdep update && rosdep install --from-path $GITHUB_WORKSPACE --ignore-src -y
-          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build
-  clean-up-robot:
-    runs-on: self-hosted
-    needs: build-robot
-    steps:
-      - name: Clean working directory
-        shell: bash
-        run: |
-          cd $GITHUB_WORKSPACE
-          sudo rm -rf *
+#   build-robot:
+#     runs-on: self-hosted
+#     needs: clean-up-sdk
+#     container: docker://venkisagunner93/create2-base:latest
+#     steps:
+#       - uses: AutoModality/action-clean@v1
+#       - uses: actions/checkout@v1          
+#       - name: Build package
+#         shell: bash
+#         run: |
+#           cd $GITHUB_WORKSPACE && rm -rf src/simulation
+#           source /opt/ros/melodic/setup.bash && rosdep init && rosdep update && rosdep install --from-path $GITHUB_WORKSPACE --ignore-src -y
+#           mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build
+#   clean-up-robot:
+#     runs-on: self-hosted
+#     needs: build-robot
+#     steps:
+#       - name: Clean working directory
+#         shell: bash
+#         run: |
+#           cd $GITHUB_WORKSPACE
+#           sudo rm -rf *
