@@ -9,9 +9,10 @@ jobs:
       - uses: AutoModality/action-clean@v1
       - uses: actions/checkout@v1          
       - name: Build package
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash -c " mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build"
+          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build"
   clean-up-sdk:
     runs-on: self-hosted
     needs: build-sdk
@@ -23,6 +24,7 @@ jobs:
           sudo rm -rf *
   build-robot:
     runs-on: self-hosted
+    needs: clean-up-sdk
     container: docker://venkisagunner93/create2-base:latest
     steps:
       - uses: AutoModality/action-clean@v1
