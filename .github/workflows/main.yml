@@ -20,8 +20,8 @@ jobs:
       - name: Clean working directory
         shell: bash
         run: |
-          cd $GITHUB_WORKSPACE && ls -la
-          sudo rm -rf * && sudo rm -rf .catkin_tools/ && ls -la
+          cd $GITHUB_WORKSPACE
+          sudo rm -rf * && sudo rm -rf .catkin_tools/
   build-robot:
     runs-on: self-hosted
     needs: clean-up-sdk
@@ -43,5 +43,5 @@ jobs:
       - name: Clean working directory
         shell: bash
         run: |
-          cd $GITHUB_WORKSPACE && ls -la
-          sudo rm -rf * && sudo rm -rf .catkin_tools/ && ls -la
+          cd $GITHUB_WORKSPACE
+          sudo rm -rf * && sudo rm -rf .catkin_tools/

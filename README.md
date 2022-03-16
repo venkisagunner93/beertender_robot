@@ -23,9 +23,9 @@ TO-DO:
         - [x] clang-format
         - [ ] catkin_lint
         - [ ] roscpp_lint
-    - [ ] Deployment pipeline
-        - [ ] Containerize deployment
-        - [ ] Robot as a docker registry 
+    - [x] Deployment pipeline
+        - [x] Containerize deployment
+        - [x] Robot as a docker registry 
     - [ ] Data collection pipeline
         - [ ] Logs
         - [ ] Bag files
@@ -33,22 +33,13 @@ TO-DO:
 
 ## How to run?
 
-Prerequisites (install once)
-```sh
-sudo apt-get update
-sudo apt-get install ros-${ROS_DISTRO}-map-server ros-${ROS_DISTRO}-ackermann-msgs ros-${ROS_DISTRO}-joy
-```
-
 ```sh
 cd $HOME
 git clone https://github.com/venkisagunner93/beertender_robot.git
 cd beertender_robot
-catkin_make
-source devel/setup.bash
-```
-For simulation:
-```
-roslaunch bringup robot_bringup.launch sim:=true
+source tools/setup.sh
+beertender --sdk
+sdk
 ```
 
 Output looks like the following:

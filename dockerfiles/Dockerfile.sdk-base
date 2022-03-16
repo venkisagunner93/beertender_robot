@@ -1,6 +1,17 @@
-FROM nvcr.io/nvidia/l4t-base:r32.6.1
+FROM osrf/ros:melodic-desktop-full-bionic
 
-RUN apt-get update && apt-get install -y curl lsb-release gnupg wget
+ENV ROS_DISTRO melodic
+
+ENV QT_X11_NO_MITSHM 1
+
+ENV DEBIAN_FRONTEND="noninteractive"
+
+ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+
+ENV WORKSPACE /home/user
+
+RUN apt-get update && apt-get install -y wget curl vim libasound2
 
 RUN echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-13 main" >> /etc/apt/sources.list
 
@@ -8,7 +19,7 @@ RUN echo "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-13 main" >> 
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key| apt-key add -
 
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata keyboard-configuration
+RUN apt-get -y install tzdata keyboard-configuration
 
 RUN apt-get update && \
     apt-get install -y clang-13 clang-tools-13 clang-13-doc libclang-common-13-dev libclang-13-dev libclang1-13 clang-format-13 clangd-13
@@ -16,11 +27,21 @@ RUN apt-get update && \
 RUN update-alternatives --install /usr/bin/c++ c++ $(command -v clang++-13) 1000
 RUN update-alternatives --install /usr/bin/cc  cc  $(command -v clang-13)   1000
 
-RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
-    apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-
-RUN apt-get update && apt-get install -y ros-melodic-desktop-full ros-melodic-tf2-bullet && echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+RUN apt-get install -y ros-${ROS_DISTRO}-joy ros-${ROS_DISTRO}-map-server
 
 RUN apt-get install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-catkin-tools
 
-RUN rosdep init && rosdep update
+RUN echo "pcm.!default { \
+  type plug \
+  slave.pcm "null" \
+}" >> /etc/asound.conf
+
+RUN useradd -ms /bin/bash user
+
+USER user
+WORKDIR ${WORKSPACE}
+
+RUN echo "source /opt/ros/melodic/setup.bash" >> ${WORKSPACE}/.bashrc
+RUN echo "source /home/user/beertender_robot/install/setup.bash" >> ${WORKSPACE}/.bashrc
+
+ENV GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:${WORKSPACE}/beertender_robot/src/simulation/models
