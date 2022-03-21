@@ -3,6 +3,9 @@
     <!-- Sim stack -->
     <include file="$(find simulation)/launch/robot_sim.launch"/>
 
+    <!-- Localization stack -->
+    <include file="$(find localization)/launch/cartographer.launch"/>
+
     <!-- Planning stack -->
     <include file="$(find planner)/launch/planner.launch"/>
 </launch>

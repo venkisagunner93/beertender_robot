@@ -17,7 +17,7 @@
         <odometryFrame>odom</odometryFrame>
         <robotBaseFrame>base_footprint</robotBaseFrame>
         <publishWheelTF>false</publishWheelTF>
-        <publishOdomTF>false</publishOdomTF>
+        <publishOdomTF>true</publishOdomTF>
         <publishWheelJointState>true</publishWheelJointState>
         <odometrySource>encoder</odometrySource>
         <publishTf>true</publishTf>

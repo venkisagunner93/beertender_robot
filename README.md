@@ -11,8 +11,7 @@ TO-DO:
     - [x] Global planning
     - [x] Local planning
 - [ ] Localization
-    - [ ] Motion model
-    - [ ] Sensor model
+    - [x] Setup basic cartographer
 - [ ] CI/CD
     - [x] Build pipeline
     - [x] Self-hosted runner

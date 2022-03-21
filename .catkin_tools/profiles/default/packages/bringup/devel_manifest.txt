@@ -1,0 +1,5 @@
+bringup
+/home/user/beertender_robot/devel/.private/bringup/cmake.lock /home/user/beertender_robot/devel/./cmake.lock
+/home/user/beertender_robot/devel/.private/bringup/lib/pkgconfig/bringup.pc /home/user/beertender_robot/devel/lib/pkgconfig/bringup.pc
+/home/user/beertender_robot/devel/.private/bringup/share/bringup/cmake/bringupConfig.cmake /home/user/beertender_robot/devel/share/bringup/cmake/bringupConfig.cmake
+/home/user/beertender_robot/devel/.private/bringup/share/bringup/cmake/bringupConfig-version.cmake /home/user/beertender_robot/devel/share/bringup/cmake/bringupConfig-version.cmake
