@@ -11,10 +11,8 @@ jobs:
       - name: Build package
         shell: bash
         run: |
-          cd / && ls -la
-          echo "-------------------"
-          cd $GITHUB_WORKSPACE && ls -la
-          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install --extend ../catkin_isolated_ws/install_isolated && catkin build
+          cd $GITHUB_WORKSPACE
+          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install --extend /home/user/catkin_isolated_ws/install_isolated && catkin build
   clean-up-sdk:
     runs-on: self-hosted
     needs: build-sdk
