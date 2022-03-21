@@ -29,19 +29,35 @@ RUN update-alternatives --install /usr/bin/cc  cc  $(command -v clang-13)   1000
 
 RUN apt-get install -y ros-${ROS_DISTRO}-joy ros-${ROS_DISTRO}-map-server
 
-RUN apt-get install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-catkin-tools
+RUN apt-get install -y python-rosdep \ 
+                       python-rosinstall \
+                       python-rosinstall-generator \ 
+                       python-wstool \ 
+                       python-catkin-tools \
+                       build-essential \
+                       ninja-build \
+                       stow
 
 RUN echo "pcm.!default { \
   type plug \
   slave.pcm "null" \
 }" >> /etc/asound.conf
 
-RUN useradd -ms /bin/bash user
+RUN adduser --disabled-password --gecos '' user
+
+RUN adduser user sudo
+
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 USER user
 WORKDIR ${WORKSPACE}
 
 RUN echo "source /opt/ros/melodic/setup.bash" >> ${WORKSPACE}/.bashrc
-RUN echo "source /home/user/beertender_robot/install/setup.bash" >> ${WORKSPACE}/.bashrc
+RUN echo "source ${WORKSPACE}/beertender_robot/install/setup.bash" >> ${WORKSPACE}/.bashrc
+RUN echo "source ${WORKSPACE}/catkin_isolated_ws/install_isolated/setup.bash" >> ${WORKSPACE}/.bashrc
 
 ENV GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:${WORKSPACE}/beertender_robot/src/simulation/models
+
+COPY --chown=user:user tools/setup_cartographer.sh ${WORKSPACE}/setup_cartographer.sh
+
+RUN ./setup_cartographer.sh ${ROS_DISTRO}

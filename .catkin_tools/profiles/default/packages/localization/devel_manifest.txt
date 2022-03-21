@@ -1,0 +1,5 @@
+localization
+/home/user/beertender_robot/devel/.private/localization/cmake.lock /home/user/beertender_robot/devel/./cmake.lock
+/home/user/beertender_robot/devel/.private/localization/lib/pkgconfig/localization.pc /home/user/beertender_robot/devel/lib/pkgconfig/localization.pc
+/home/user/beertender_robot/devel/.private/localization/share/localization/cmake/localizationConfig-version.cmake /home/user/beertender_robot/devel/share/localization/cmake/localizationConfig-version.cmake
+/home/user/beertender_robot/devel/.private/localization/share/localization/cmake/localizationConfig.cmake /home/user/beertender_robot/devel/share/localization/cmake/localizationConfig.cmake

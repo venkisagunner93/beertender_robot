@@ -10,4 +10,4 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 RUN . /opt/ros/melodic/setup.sh && rosdep install --from-path /${WS} --ignore-src -y
 
-RUN cd ${WS} && . /opt/ros/melodic/setup.sh && catkin config --install && catkin build
+RUN cd ${WS} && . /opt/ros/melodic/setup.sh && catkin config --install --extend ../catkin_isolated_ws/install_isolated && catkin build

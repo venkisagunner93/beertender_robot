@@ -1,0 +1,5 @@
+environments
+/home/user/beertender_robot/devel/.private/environments/cmake.lock /home/user/beertender_robot/devel/./cmake.lock
+/home/user/beertender_robot/devel/.private/environments/lib/pkgconfig/environments.pc /home/user/beertender_robot/devel/lib/pkgconfig/environments.pc
+/home/user/beertender_robot/devel/.private/environments/share/environments/cmake/environmentsConfig-version.cmake /home/user/beertender_robot/devel/share/environments/cmake/environmentsConfig-version.cmake
+/home/user/beertender_robot/devel/.private/environments/share/environments/cmake/environmentsConfig.cmake /home/user/beertender_robot/devel/share/environments/cmake/environmentsConfig.cmake

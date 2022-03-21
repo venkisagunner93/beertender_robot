@@ -1,0 +1,14 @@
+/home/user/beertender_robot/install/lib/libcreate.so
+/home/user/beertender_robot/install/include/create/serial.h
+/home/user/beertender_robot/install/include/create/packet.h
+/home/user/beertender_robot/install/include/create/util.h
+/home/user/beertender_robot/install/include/create/data.h
+/home/user/beertender_robot/install/include/create/create.h
+/home/user/beertender_robot/install/include/create/serial_query.h
+/home/user/beertender_robot/install/include/create/types.h
+/home/user/beertender_robot/install/include/create/serial_stream.h
+/home/user/beertender_robot/install/lib/cmake/libcreate/libcreate-config.cmake
+/home/user/beertender_robot/install/lib/cmake/libcreate/libcreate-config-version.cmake
+/home/user/beertender_robot/install/lib/cmake/libcreate/libcreate-targets.cmake
+/home/user/beertender_robot/install/lib/cmake/libcreate/libcreate-targets-noconfig.cmake
+/home/user/beertender_robot/install/share/libcreate/package.xml
