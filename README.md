@@ -41,7 +41,7 @@ beertender --sdk
 sdk
 ```
 
-Output looks like the following:
+An rviz window should open up. Enjoy playing with create2 robot
 
 ![rviz](.images/rviz.png)
 

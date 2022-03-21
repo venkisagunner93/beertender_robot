@@ -1,4 +1,5 @@
 build/
+.catkin_tools/
 devel/
 build_isolated/
 devel_isolated/

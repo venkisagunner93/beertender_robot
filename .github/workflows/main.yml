@@ -12,7 +12,7 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE
-          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build
+          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install --extend ../catkin_isolated_ws/install_isolated && catkin build
   clean-up-sdk:
     runs-on: self-hosted
     needs: build-sdk
@@ -35,7 +35,7 @@ jobs:
           cd $GITHUB_WORKSPACE && rm -rf src/simulation
           echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
           source /opt/ros/melodic/setup.bash && rosdep update && rosdep install --from-path $GITHUB_WORKSPACE --ignore-src -y
-          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install && catkin build
+          mkdir install/ logs/ && source /opt/ros/melodic/setup.bash && catkin config --install --extend ../catkin_isolated_ws/install_isolated && catkin build
   clean-up-robot:
     runs-on: self-hosted
     needs: build-robot
